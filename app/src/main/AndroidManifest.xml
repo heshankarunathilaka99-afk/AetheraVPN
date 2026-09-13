@@ -4,6 +4,8 @@
     <uses-permission android:name="android.permission.INTERNET" />
 
     <application
+        android:icon="@drawable/aethera_icon"
+        android:roundIcon="@drawable/aethera_icon"
         android:theme="@style/AppTheme"
         android:label="Aethera VPN"
         android:usesCleartextTraffic="true">

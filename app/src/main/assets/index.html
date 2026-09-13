@@ -1,1185 +1,302 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#050816">
-
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="theme-color" content="#06131f" />
 <title>Aethera VPN</title>
-
 <style>
-*{
-  box-sizing:border-box;
-  -webkit-tap-highlight-color:transparent;
-}
-
 :root{
-  --bg:#050816;
-  --card:#0b1220;
-  --border:#1b2942;
-  --blue:#00b7ff;
-  --purple:#7c3aed;
-  --green:#00ff9d;
-  --text:#ffffff;
-  --muted:#7f8da8;
+  --bg:#03101a;
+  --bg2:#071b2a;
+  --card:rgba(6,24,38,.86);
+  --card2:rgba(10,34,52,.88);
+  --text:#f4fbff;
+  --muted:#8fb8ce;
+  --line:#0db6eb;
+  --cyan:#10e6ff;
+  --blue:#1685ff;
+  --green:#2df293;
+  --danger:#ff5470;
+  --shadow:0 0 24px rgba(16,230,255,.23);
 }
-
+body.light{
+  --bg:#eef8ff;
+  --bg2:#dcedf8;
+  --card:rgba(255,255,255,.92);
+  --card2:rgba(239,249,255,.95);
+  --text:#082035;
+  --muted:#52738b;
+  --line:#168fd1;
+  --cyan:#00a9d8;
+  --blue:#1769e8;
+  --green:#0aaf68;
+  --danger:#df2c4d;
+  --shadow:0 10px 28px rgba(20,80,120,.14);
+}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:var(--bg);color:var(--text)}
 body{
-  margin:0;
-  min-height:100vh;
   background:
-    radial-gradient(circle at 50% -10%,#102c55 0%,#050816 42%),
-    #050816;
-  color:var(--text);
-  font-family:Arial,Helvetica,sans-serif;
+    radial-gradient(circle at 50% 18%, rgba(0,174,255,.14), transparent 30%),
+    radial-gradient(circle at 50% 62%, rgba(0,229,255,.08), transparent 33%),
+    linear-gradient(180deg,var(--bg),var(--bg2));
+  transition:.3s ease;
 }
-
-.app{
-  width:100%;
-  max-width:470px;
-  min-height:100vh;
-  margin:auto;
-  padding:20px 18px 35px;
+button,select{font:inherit}
+button{-webkit-tap-highlight-color:transparent}
+.app{max-width:520px;margin:0 auto;min-height:100vh;padding:calc(14px + env(safe-area-inset-top)) 16px calc(94px + env(safe-area-inset-bottom));position:relative;overflow:hidden}
+.stars,.stars:before,.stars:after{content:"";position:absolute;inset:0;pointer-events:none;background-image:radial-gradient(circle,rgba(72,217,255,.65) 1px,transparent 1.2px);background-size:44px 44px;opacity:.22}
+.stars:before{transform:translate(15px,22px);background-size:70px 70px;opacity:.15}
+.top{display:flex;justify-content:space-between;align-items:center;position:relative;z-index:3}
+.iconbtn{width:44px;height:44px;border:1px solid rgba(17,207,255,.35);border-radius:14px;background:var(--card);color:var(--text);display:grid;place-items:center;box-shadow:var(--shadow)}
+.iconbtn svg{width:23px;height:23px}
+.brand{display:flex;flex-direction:column;align-items:center;margin-top:2px}
+.brand img{width:86px;height:86px;object-fit:cover;border-radius:24px;box-shadow:0 0 28px rgba(0,216,255,.28)}
+.brand h1{font-size:26px;margin:8px 0 0;letter-spacing:-.5px}
+.brand h1 span{background:linear-gradient(90deg,var(--cyan),var(--blue));-webkit-background-clip:text;background-clip:text;color:transparent}
+.brand small{letter-spacing:4px;color:var(--muted);font-size:9px}
+.hero{position:relative;z-index:2;text-align:center;margin-top:14px}
+.globe{height:165px;border-radius:38px;background:
+  radial-gradient(circle at 50% 85%,rgba(0,225,255,.48),transparent 34%),
+  radial-gradient(circle at 45% 50%,rgba(18,109,255,.25),transparent 38%),
+  linear-gradient(180deg,rgba(0,0,0,0),rgba(0,198,255,.08));
+  position:relative;overflow:hidden;border:1px solid rgba(18,207,255,.15)
 }
-
-.header{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  margin-bottom:20px;
-}
-
-.logo-area{
-  display:flex;
-  align-items:center;
-  gap:11px;
-}
-
-.logo{
-  width:44px;
-  height:44px;
-  border-radius:14px;
-  background:linear-gradient(135deg,var(--blue),var(--purple));
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  font-size:21px;
-  font-weight:900;
-  box-shadow:0 0 18px rgba(0,183,255,.35);
-}
-
-.title h2{
-  margin:0;
-  font-size:19px;
-}
-
-.title span{
-  display:block;
-  font-size:11px;
-  color:var(--muted);
-  margin-top:3px;
-}
-
-.security{
-  width:41px;
-  height:41px;
-  border:1px solid var(--border);
-  background:rgba(16,26,46,.7);
-  border-radius:13px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-}
-
-.card{
+.globe:before{
+  content:"";position:absolute;left:50%;bottom:-92px;width:330px;height:220px;transform:translateX(-50%);
+  border-radius:50%;border:1px solid rgba(56,228,255,.55);
+  box-shadow:inset 0 0 45px rgba(0,177,255,.22),0 0 35px rgba(0,220,255,.16);
   background:
-    linear-gradient(
-      145deg,
-      rgba(16,26,46,.95),
-      rgba(7,14,28,.95)
-    );
-  border:1px solid var(--border);
-  border-radius:22px;
-  padding:18px;
-  box-shadow:0 15px 45px rgba(0,0,0,.25);
-  margin-bottom:15px;
+   radial-gradient(circle at 35% 40%,rgba(0,225,255,.45) 0 2px,transparent 3px),
+   radial-gradient(circle at 65% 30%,rgba(0,225,255,.45) 0 2px,transparent 3px),
+   radial-gradient(circle at 58% 52%,rgba(0,225,255,.4) 0 2px,transparent 3px),
+   linear-gradient(90deg,transparent 49.5%,rgba(0,220,255,.18) 50%,transparent 50.5%),
+   linear-gradient(rgba(0,220,255,.1),rgba(0,220,255,.02));
 }
-
-.selector-grid{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:11px;
+.connect-wrap{margin-top:-50px;position:relative;z-index:4;display:flex;justify-content:center}
+.connect{
+  width:190px;height:190px;border-radius:50%;border:2px solid var(--cyan);background:
+  radial-gradient(circle at 50% 45%,rgba(0,218,255,.16),rgba(0,21,35,.96) 67%);
+  color:#fff;box-shadow:0 0 0 10px rgba(0,218,255,.08),0 0 45px rgba(0,230,255,.35),inset 0 0 35px rgba(0,190,255,.15);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;transition:.25s ease;cursor:pointer
 }
-
-.select-box label{
-  display:block;
-  font-size:11px;
-  color:var(--muted);
-  margin:0 0 7px 4px;
-}
-
-select{
-  width:100%;
-  height:48px;
-  border-radius:13px;
-  border:1px solid var(--border);
-  background:#0b1527;
-  color:white;
-  padding:0 10px;
-  font-size:13px;
-  outline:none;
-}
-
-.full{
-  grid-column:1 / -1;
-}
-
-.connection-title{
-  text-align:center;
-  color:var(--muted);
-  font-size:12px;
-  margin-top:5px;
-}
-
-.connection-status{
-  text-align:center;
-  font-size:22px;
-  font-weight:800;
-  margin-top:5px;
-}
-
-.power-wrap{
-  display:flex;
-  justify-content:center;
-  padding:24px 0 18px;
-}
-
-.power-ring{
-  width:190px;
-  height:190px;
-  border-radius:50%;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  background:
-    radial-gradient(
-      circle,
-      rgba(0,183,255,.12),
-      transparent 65%
-    );
-  position:relative;
-}
-
-.power-ring::before{
-  content:"";
-  position:absolute;
-  inset:2px;
-  border-radius:50%;
-  border:2px solid rgba(0,183,255,.15);
-  box-shadow:0 0 35px rgba(0,183,255,.12);
-}
-
-.power-ring.connected::before{
-  border-color:rgba(0,255,157,.65);
-  box-shadow:
-    0 0 30px rgba(0,255,157,.28),
-    inset 0 0 25px rgba(0,255,157,.08);
-  animation:ringPulse 1.8s infinite;
-}
-
-@keyframes ringPulse{
-  0%,100%{
-    transform:scale(1);
-    opacity:.6;
-  }
-
-  50%{
-    transform:scale(1.05);
-    opacity:1;
-  }
-}
-
-.power-btn{
-  width:145px;
-  height:145px;
-  border:none;
-  border-radius:50%;
-  background:linear-gradient(145deg,#13243c,#07111f);
-  border:2px solid #173350;
-  color:white;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  justify-content:center;
-  cursor:pointer;
-  box-shadow:
-    inset 0 0 25px rgba(0,183,255,.05),
-    0 12px 35px rgba(0,0,0,.5);
-  transition:.3s;
-}
-
-.power-btn:active{
-  transform:scale(.96);
-}
-
-.power-icon{
-  font-size:41px;
-  color:var(--blue);
-  text-shadow:0 0 18px rgba(0,183,255,.8);
-}
-
-.power-text{
-  margin-top:10px;
-  font-size:12px;
-  letter-spacing:2px;
-  color:#aab7ca;
-}
-
-.power-btn.connected{
-  border-color:var(--green);
-  box-shadow:
-    0 0 35px rgba(0,255,157,.18),
-    inset 0 0 25px rgba(0,255,157,.06);
-}
-
-.power-btn.connected .power-icon{
-  color:var(--green);
-  text-shadow:0 0 20px rgba(0,255,157,.9);
-}
-
-.timer{
-  text-align:center;
-  font-size:24px;
-  font-weight:700;
-  letter-spacing:2px;
-}
-
-.timer-label{
-  text-align:center;
-  font-size:10px;
-  color:var(--muted);
-  margin-top:4px;
-}
-
-.stats{
-  display:grid;
-  grid-template-columns:repeat(3,1fr);
-  gap:9px;
-}
-
-.stat{
-  background:#091426;
-  border:1px solid var(--border);
-  border-radius:16px;
-  padding:13px 6px;
-  text-align:center;
-}
-
-.stat-icon{
-  font-size:18px;
-  margin-bottom:7px;
-}
-
-.stat-name{
-  color:var(--muted);
-  font-size:9px;
-  text-transform:uppercase;
-}
-
-.stat-value{
-  font-size:14px;
-  font-weight:bold;
-  margin-top:5px;
-}
-
-.graph-header{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  margin-bottom:12px;
-}
-
-.graph-title{
-  font-size:14px;
-  font-weight:bold;
-}
-
-.live{
-  font-size:10px;
-  color:var(--green);
-}
-
-.live-dot{
-  display:inline-block;
-  width:6px;
-  height:6px;
-  border-radius:50%;
-  background:var(--green);
-  margin-right:5px;
-  box-shadow:0 0 8px var(--green);
-}
-
-canvas{
-  width:100%;
-  height:130px;
-}
-
-.data-row{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:10px;
-  margin-top:14px;
-}
-
-.data-box{
-  background:#091426;
-  border:1px solid var(--border);
-  border-radius:14px;
-  padding:12px;
-}
-
-.data-top{
-  display:flex;
-  justify-content:space-between;
-  font-size:11px;
-  color:var(--muted);
-}
-
-.data-number{
-  margin-top:7px;
-  font-size:17px;
-  font-weight:bold;
-}
-
-.download-color{
-  color:var(--blue);
-}
-
-.upload-color{
-  color:var(--purple);
-}
-
-.info-row{
-  display:flex;
-  justify-content:space-between;
-  padding:9px 0;
-  border-bottom:1px solid rgba(255,255,255,.05);
-  font-size:12px;
-}
-
-.info-row:last-child{
-  border:none;
-}
-
-.info-label{
-  color:var(--muted);
-}
-
-.info-value{
-  text-align:right;
-  max-width:60%;
-}
-
-.credit-wrap{
-  overflow:hidden;
-  margin-top:24px;
-  padding:8px 0;
-}
-
-.credit{
-  text-align:center;
-  font-weight:900;
-  font-size:14px;
-  letter-spacing:1px;
-  background:
-    linear-gradient(
-      90deg,
-      #00b7ff,
-      #ffffff,
-      #7c3aed,
-      #00ff9d,
-      #00b7ff
-    );
-  background-size:300%;
-  color:transparent;
-  -webkit-background-clip:text;
-  background-clip:text;
-  animation:
-    creditMove 3s ease-in-out infinite,
-    creditGlow 4s linear infinite;
-}
-
-@keyframes creditMove{
-  0%,100%{
-    transform:translateX(-18px);
-  }
-
-  50%{
-    transform:translateX(18px);
-  }
-}
-
-@keyframes creditGlow{
-  0%{
-    background-position:0%;
-  }
-
-  100%{
-    background-position:300%;
-  }
-}
-
-.footer{
-  text-align:center;
-  color:#46546b;
-  font-size:9px;
-  margin-top:8px;
-}
-
-@media(max-width:370px){
-  .selector-grid{
-    grid-template-columns:1fr;
-  }
-
-  .full{
-    grid-column:auto;
-  }
-
-  .stat-value{
-    font-size:12px;
-  }
-}
+body.light .connect{color:#082035;background:radial-gradient(circle at 50% 45%,#fff,#dff7ff 70%)}
+.connect:active{transform:scale(.97)}
+.connect .power{font-size:55px;line-height:1;color:var(--cyan);filter:drop-shadow(0 0 12px rgba(0,225,255,.7))}
+.connect strong{font-size:18px;letter-spacing:1.5px}
+.connect.connected{border-color:var(--green);box-shadow:0 0 0 10px rgba(45,242,147,.08),0 0 45px rgba(45,242,147,.34)}
+.connect.connected .power{color:var(--green)}
+.hint{margin:14px 0 16px;color:var(--muted);font-size:13px}
+.card{background:linear-gradient(180deg,var(--card),var(--card2));border:1px solid rgba(17,194,240,.45);border-radius:22px;box-shadow:var(--shadow);position:relative;z-index:2}
+.server{display:flex;align-items:center;padding:14px 15px;gap:12px;text-align:left;width:100%;color:var(--text)}
+.flag{width:48px;height:34px;border-radius:8px;background:linear-gradient(90deg,#f6a900 0 22%,#8d153a 22% 78%,#f6a900 78%);border:1px solid rgba(255,255,255,.18)}
+.server .info{flex:1}
+.server .title{font-size:17px;font-weight:750}
+.server .sub{font-size:12px;color:var(--muted);margin-top:3px}
+.chev{font-size:30px;color:#6bdfff}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);padding:12px 4px;margin-top:13px}
+.stat{padding:8px 4px;text-align:center;border-right:1px solid rgba(110,201,235,.25)}
+.stat:last-child{border-right:0}
+.stat b{display:block;font-size:15px;margin-top:6px}
+.stat span{font-size:11px;color:var(--muted)}
+.stat .sym{font-size:24px;color:#78dcff}
+.pro{margin-top:13px;padding:14px 15px;display:flex;align-items:center;gap:12px}
+.diamond{font-size:30px}
+.pro .info{flex:1}
+.pro b{font-size:15px}
+.pro small{display:block;color:var(--muted);margin-top:3px}
+.panels{display:none;margin-top:14px}
+.panels.active{display:block}
+.panel{padding:16px}
+.panel h3{margin:0 0 12px}
+.row{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid rgba(120,200,230,.16)}
+.row:last-child{border-bottom:0}
+select{max-width:55%;background:var(--card2);color:var(--text);border:1px solid rgba(0,191,240,.32);border-radius:12px;padding:8px}
+.theme-toggle{display:flex;background:var(--card2);border:1px solid rgba(0,191,240,.25);border-radius:999px;padding:3px}
+.theme-toggle button{border:0;background:transparent;color:var(--muted);padding:7px 10px;border-radius:999px}
+.theme-toggle button.active{background:linear-gradient(90deg,var(--cyan),var(--blue));color:#fff}
+.nav{position:fixed;left:50%;bottom:0;transform:translateX(-50%);width:min(520px,100%);padding:10px 14px calc(10px + env(safe-area-inset-bottom));z-index:20}
+.navbar{display:grid;grid-template-columns:repeat(4,1fr);background:rgba(4,17,28,.95);border:1px solid rgba(0,204,255,.35);border-radius:25px;padding:7px;box-shadow:0 -10px 35px rgba(0,0,0,.35)}
+body.light .navbar{background:rgba(247,252,255,.96)}
+.nav button{border:0;background:transparent;color:var(--muted);padding:7px 4px;border-radius:16px;font-size:11px;display:flex;flex-direction:column;gap:4px;align-items:center}
+.nav button .nicon{font-size:22px}
+.nav button.active{color:var(--cyan);background:rgba(0,214,255,.08)}
+.toast{position:fixed;left:50%;bottom:100px;transform:translateX(-50%) translateY(20px);opacity:0;background:#071b2a;color:#fff;border:1px solid rgba(0,220,255,.4);padding:10px 16px;border-radius:999px;transition:.25s;z-index:40;white-space:nowrap}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.splash{position:fixed;inset:0;z-index:100;background:#020814;display:flex;align-items:center;justify-content:center;transition:opacity .7s ease,visibility .7s ease}
+.splash.hide{opacity:0;visibility:hidden}
+.splash img{width:100%;height:100%;object-fit:cover;animation:splashZoom 3s ease forwards}
+.splash:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 65%,rgba(1,7,14,.18))}
+@keyframes splashZoom{from{transform:scale(1.03);filter:brightness(.88)}to{transform:scale(1);filter:brightness(1)}}
+.pulse{animation:pulse 1.4s ease-in-out infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 10px rgba(0,218,255,.08),0 0 35px rgba(0,230,255,.25)}50%{box-shadow:0 0 0 17px rgba(0,218,255,.03),0 0 58px rgba(0,230,255,.5)}}
 </style>
 </head>
-
 <body>
-
+<div class="splash" id="splash"><img src="aethera_splash.png" alt="Aethera VPN splash"></div>
 <div class="app">
-
-  <div class="header">
-    <div class="logo-area">
-      <div class="logo">A</div>
-
-      <div class="title">
-        <h2>Aethera VPN</h2>
-        <span>Secure Connection</span>
-      </div>
-    </div>
-
-    <div class="security">🛡️</div>
+  <div class="stars"></div>
+  <div class="top">
+    <button class="iconbtn" id="menuBtn" aria-label="Menu">☰</button>
+    <div></div>
+    <button class="iconbtn" id="quickTheme" aria-label="Theme">☾</button>
   </div>
 
-  <div class="card">
-    <div class="selector-grid">
-
-      <div class="select-box">
-        <label>ISP NETWORK</label>
-
-        <select id="isp" onchange="loadProfiles()">
-          <option value="">Select ISP</option>
-          <option value="dialog">Dialog</option>
-          <option value="mobitel">SLT-Mobitel</option>
-          <option value="hutch">Hutch</option>
-          <option value="airtel">Airtel</option>
-          <option value="custom">Custom ISP</option>
-        </select>
-      </div>
-
-      <div class="select-box">
-        <label>VPN PROFILE</label>
-
-        <select id="profile">
-          <option value="">Select Profile</option>
-        </select>
-      </div>
-
-      <div class="select-box full">
-        <label>VPN SERVER</label>
-
-        <select id="server">
-          <option value="Auto Server" data-ping="35">⚡ Auto Fast Server</option>
-          <option value="Sri Lanka" data-ping="18">🇱🇰 Sri Lanka Server</option>
-          <option value="Singapore" data-ping="42">🇸🇬 Singapore Server</option>
-          <option value="India" data-ping="58">🇮🇳 India Server</option>
-          <option value="Germany" data-ping="150">🇩🇪 Germany Server</option>
-          <option value="USA" data-ping="220">🇺🇸 USA Server</option>
-        </select>
-      </div>
-
-    </div>
-  </div>
-
-  <div class="card">
-
-    <div class="connection-title">
-      CONNECTION STATUS
+  <section id="homePanel">
+    <div class="brand">
+      <img src="aethera_logo.png" alt="Aethera VPN logo">
+      <h1>Aethera <span>VPN</span></h1>
+      <small>SECURE YOUR WORLD</small>
     </div>
 
-    <div class="connection-status" id="connectionStatus">
-      Disconnected
-    </div>
-
-    <div class="power-wrap">
-      <div class="power-ring" id="powerRing">
-
-        <button
-          class="power-btn"
-          id="powerButton"
-          onclick="toggleVPN()">
-
-          <div class="power-icon">⏻</div>
-
-          <div class="power-text" id="powerText">
-            CONNECT
-          </div>
-
+    <div class="hero">
+      <div class="globe"></div>
+      <div class="connect-wrap">
+        <button class="connect pulse" id="connectBtn">
+          <div class="power">⏻</div>
+          <strong id="connectLabel">CONNECT</strong>
         </button>
       </div>
+      <div class="hint" id="statusText">Tap to Connect</div>
     </div>
 
-    <div class="timer" id="timer">
-      00:00:00
-    </div>
-
-    <div class="timer-label">
-      CONNECTION TIME
-    </div>
-
-  </div>
-
-  <div class="stats">
-
-    <div class="stat">
-      <div class="stat-icon">◉</div>
-      <div class="stat-name">Ping</div>
-      <div class="stat-value" id="ping">-- ms</div>
-    </div>
-
-    <div class="stat">
-      <div class="stat-icon download-color">↓</div>
-      <div class="stat-name">Download</div>
-      <div class="stat-value" id="download">0.00 Mbps</div>
-    </div>
-
-    <div class="stat">
-      <div class="stat-icon upload-color">↑</div>
-      <div class="stat-name">Upload</div>
-      <div class="stat-value" id="upload">0.00 Mbps</div>
-    </div>
-
-  </div>
-
-  <div class="card" style="margin-top:15px;">
-
-    <div class="graph-header">
-      <div class="graph-title">Live Traffic</div>
-
-      <div class="live">
-        <span class="live-dot"></span>
-        LIVE
+    <button class="card server" id="serverBtn">
+      <div class="flag"></div>
+      <div class="info">
+        <div class="title" id="serverName">Sri Lanka</div>
+        <div class="sub" id="serverSub">Colombo · Fastest Server</div>
       </div>
+      <div class="chev">›</div>
+    </button>
+
+    <div class="card stats">
+      <div class="stat"><div class="sym">◔</div><b id="down">--</b><span>Download Mbps</span></div>
+      <div class="stat"><div class="sym">⇧</div><b id="up">--</b><span>Upload Mbps</span></div>
+      <div class="stat"><div class="sym">⌁</div><b id="ping">--</b><span>Ping ms</span></div>
+      <div class="stat"><div class="sym">♢</div><b id="state">Offline</b><span>Status</span></div>
     </div>
 
-    <canvas id="trafficGraph"></canvas>
-
-    <div class="data-row">
-
-      <div class="data-box">
-        <div class="data-top">
-          <span>Downloaded</span>
-          <span>↓</span>
-        </div>
-
-        <div class="data-number download-color" id="totalDownload">
-          0.00 MB
-        </div>
+    <button class="card pro" id="proBtn">
+      <div class="diamond">💎</div>
+      <div class="info">
+        <b>Aethera VPN PRO</b>
+        <small>Faster Servers · No Ads · Global Access</small>
       </div>
+      <div class="chev">›</div>
+    </button>
+  </section>
 
-      <div class="data-box">
-        <div class="data-top">
-          <span>Uploaded</span>
-          <span>↑</span>
-        </div>
+  <section class="panels" id="serversPanel">
+    <div class="card panel">
+      <h3>Servers</h3>
+      <div class="row"><span>Sri Lanka</span><button class="iconbtn chooseServer" data-name="Sri Lanka" data-sub="Colombo · Fastest Server" style="width:36px;height:36px">✓</button></div>
+      <div class="row"><span>Singapore</span><button class="iconbtn chooseServer" data-name="Singapore" data-sub="Singapore · Low Latency" style="width:36px;height:36px">→</button></div>
+      <div class="row"><span>India</span><button class="iconbtn chooseServer" data-name="India" data-sub="Mumbai · Fast Server" style="width:36px;height:36px">→</button></div>
+      <div class="row"><span>Germany</span><button class="iconbtn chooseServer" data-name="Germany" data-sub="Frankfurt · Secure Server" style="width:36px;height:36px">→</button></div>
+    </div>
+  </section>
 
-        <div class="data-number upload-color" id="totalUpload">
-          0.00 MB
+  <section class="panels" id="statsPanel">
+    <div class="card panel">
+      <h3>Connection Stats</h3>
+      <div class="row"><span>Connection Time</span><b id="timer">00:00:00</b></div>
+      <div class="row"><span>Download</span><b id="down2">0.00 Mbps</b></div>
+      <div class="row"><span>Upload</span><b id="up2">0.00 Mbps</b></div>
+      <div class="row"><span>Ping</span><b id="ping2">-- ms</b></div>
+    </div>
+  </section>
+
+  <section class="panels" id="settingsPanel">
+    <div class="card panel">
+      <h3>Settings</h3>
+      <div class="row">
+        <span>Theme</span>
+        <div class="theme-toggle">
+          <button id="darkBtn">Dark</button>
+          <button id="lightBtn">Light</button>
         </div>
       </div>
-
+      <div class="row"><span>ISP Profile</span>
+        <select id="isp">
+          <option>Dialog</option><option>SLT-Mobitel</option><option>Hutch</option><option>Airtel</option><option>Custom ISP</option>
+        </select>
+      </div>
+      <div class="row"><span>VPN Profile</span>
+        <select id="profile"><option>Default VPN</option><option>Fast Server</option><option>Gaming VPN</option><option>Private VPN</option></select>
+      </div>
+      <div class="row"><span>Version</span><b>2.0 UI</b></div>
+      <div class="row"><span>Credit</span><b>Made By Ravidu Heshan</b></div>
     </div>
-  </div>
-
-  <div class="card">
-
-    <div class="graph-title" style="margin-bottom:9px;">
-      Connection Information
-    </div>
-
-    <div class="info-row">
-      <span class="info-label">ISP</span>
-      <span class="info-value" id="infoISP">-</span>
-    </div>
-
-    <div class="info-row">
-      <span class="info-label">Profile</span>
-      <span class="info-value" id="infoProfile">-</span>
-    </div>
-
-    <div class="info-row">
-      <span class="info-label">Server</span>
-      <span class="info-value" id="infoServer">-</span>
-    </div>
-
-    <div class="info-row">
-      <span class="info-label">Protocol</span>
-      <span class="info-value">Secure VPN</span>
-    </div>
-
-  </div>
-
-  <div class="credit-wrap">
-    <div class="credit">
-      ✦ Made By Ravidu Heshan ✦
-    </div>
-  </div>
-
-  <div class="footer">
-    Aethera Secure Network
-  </div>
-
+  </section>
 </div>
 
+<div class="nav">
+  <div class="navbar">
+    <button class="active navbtn" data-panel="home"><span class="nicon">⌂</span>Home</button>
+    <button class="navbtn" data-panel="servers"><span class="nicon">◎</span>Servers</button>
+    <button class="navbtn" data-panel="stats"><span class="nicon">▥</span>Stats</button>
+    <button class="navbtn" data-panel="settings"><span class="nicon">⚙</span>Settings</button>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
 <script>
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const splash=$("#splash"), connectBtn=$("#connectBtn"), connectLabel=$("#connectLabel"), statusText=$("#statusText");
+let connected=false, startTime=null, timerInt=null, statsInt=null;
 
-const profiles = {
-
-  dialog:[
-    "Default VPN",
-    "Fast Server",
-    "Gaming VPN",
-    "Private VPN"
-  ],
-
-  mobitel:[
-    "Default VPN",
-    "Fast Server",
-    "Gaming VPN",
-    "Private VPN"
-  ],
-
-  hutch:[
-    "Default VPN",
-    "Fast Server",
-    "Gaming VPN",
-    "Private VPN"
-  ],
-
-  airtel:[
-    "Default VPN",
-    "Fast Server",
-    "Gaming VPN",
-    "Private VPN"
-  ],
-
-  custom:[
-    "Custom VPN",
-    "Manual Server"
-  ]
-
-};
-
-let connected = false;
-let seconds = 0;
-let timerInterval = null;
-let networkInterval = null;
-let totalDownMB = 0;
-let totalUpMB = 0;
-let downloadHistory = new Array(30).fill(0);
-let uploadHistory = new Array(30).fill(0);
-
-function loadProfiles(){
-
-  const isp =
-    document.getElementById("isp").value;
-
-  const profile =
-    document.getElementById("profile");
-
-  profile.innerHTML =
-    '<option value="">Select Profile</option>';
-
-  if(!profiles[isp]){
-    return;
-  }
-
-  profiles[isp].forEach(name => {
-
-    const option =
-      document.createElement("option");
-
-    option.value = name;
-    option.textContent = name;
-
-    profile.appendChild(option);
-
-  });
-
+function applyTheme(mode){
+  document.body.classList.toggle("light",mode==="light");
+  localStorage.setItem("aethera-theme",mode);
+  $("#quickTheme").textContent=mode==="light"?"☀":"☾";
+  $("#darkBtn").classList.toggle("active",mode==="dark");
+  $("#lightBtn").classList.toggle("active",mode==="light");
 }
+applyTheme(localStorage.getItem("aethera-theme")||"dark");
+$("#quickTheme").onclick=()=>applyTheme(document.body.classList.contains("light")?"dark":"light");
+$("#darkBtn").onclick=()=>applyTheme("dark");
+$("#lightBtn").onclick=()=>applyTheme("light");
 
-function toggleVPN(){
+window.addEventListener("load",()=>setTimeout(()=>splash.classList.add("hide"),2200));
 
-  if(connected){
-    disconnectVPN();
-  }else{
-    connectVPN();
-  }
-
+function showToast(t){const x=$("#toast");x.textContent=t;x.classList.add("show");setTimeout(()=>x.classList.remove("show"),1800)}
+function formatTime(ms){let s=Math.floor(ms/1000),h=String(Math.floor(s/3600)).padStart(2,"0");s%=3600;let m=String(Math.floor(s/60)).padStart(2,"0"),sec=String(s%60).padStart(2,"0");return `${h}:${m}:${sec}`}
+function updateStats(){
+  if(!connected)return;
+  const d=(4+Math.random()*38).toFixed(1),u=(1+Math.random()*17).toFixed(1),p=Math.floor(18+Math.random()*38);
+  $("#down").textContent=d;$("#up").textContent=u;$("#ping").textContent=p;
+  $("#down2").textContent=d+" Mbps";$("#up2").textContent=u+" Mbps";$("#ping2").textContent=p+" ms";
 }
-
-function connectVPN(){
-
-  const isp =
-    document.getElementById("isp").value;
-
-  const profile =
-    document.getElementById("profile").value;
-
-  const server =
-    document.getElementById("server").value;
-
-  if(!isp){
-    alert("Select your ISP.");
-    return;
-  }
-
-  if(!profile){
-    alert("Select a VPN profile.");
-    return;
-  }
-
-  connected = true;
-
-  document
-    .getElementById("powerButton")
-    .classList
-    .add("connected");
-
-  document
-    .getElementById("powerRing")
-    .classList
-    .add("connected");
-
-  document
-    .getElementById("powerText")
-    .textContent =
-    "DISCONNECT";
-
-  const status =
-    document.getElementById("connectionStatus");
-
-  status.textContent =
-    "Connected";
-
-  status.style.color =
-    "#00ff9d";
-
-  document
-    .getElementById("infoISP")
-    .textContent =
-    getISPName(isp);
-
-  document
-    .getElementById("infoProfile")
-    .textContent =
-    profile;
-
-  document
-    .getElementById("infoServer")
-    .textContent =
-    server;
-
-  seconds = 0;
-  totalDownMB = 0;
-  totalUpMB = 0;
-
-  downloadHistory =
-    new Array(30).fill(0);
-
-  uploadHistory =
-    new Array(30).fill(0);
-
-  startTimer();
-  startNetworkStats();
-
+function connect(){
+  connected=true;startTime=Date.now();connectBtn.classList.add("connected");connectBtn.classList.remove("pulse");
+  connectLabel.textContent="CONNECTED";statusText.textContent="Secure connection active";$("#state").textContent="Online";
+  updateStats();statsInt=setInterval(updateStats,1200);timerInt=setInterval(()=>$("#timer").textContent=formatTime(Date.now()-startTime),1000);
+  showToast("Connected (UI demo)");
 }
-
-function disconnectVPN(){
-
-  connected = false;
-
-  clearInterval(timerInterval);
-  clearInterval(networkInterval);
-
-  document
-    .getElementById("powerButton")
-    .classList
-    .remove("connected");
-
-  document
-    .getElementById("powerRing")
-    .classList
-    .remove("connected");
-
-  document
-    .getElementById("powerText")
-    .textContent =
-    "CONNECT";
-
-  const status =
-    document.getElementById("connectionStatus");
-
-  status.textContent =
-    "Disconnected";
-
-  status.style.color =
-    "#ffffff";
-
-  document
-    .getElementById("ping")
-    .textContent =
-    "-- ms";
-
-  document
-    .getElementById("download")
-    .textContent =
-    "0.00 Mbps";
-
-  document
-    .getElementById("upload")
-    .textContent =
-    "0.00 Mbps";
-
-  document
-    .getElementById("infoISP")
-    .textContent =
-    "-";
-
-  document
-    .getElementById("infoProfile")
-    .textContent =
-    "-";
-
-  document
-    .getElementById("infoServer")
-    .textContent =
-    "-";
-
-  drawGraph();
-
+function disconnect(){
+  connected=false;connectBtn.classList.remove("connected");connectBtn.classList.add("pulse");
+  connectLabel.textContent="CONNECT";statusText.textContent="Tap to Connect";$("#state").textContent="Offline";
+  clearInterval(statsInt);clearInterval(timerInt);$("#down").textContent=$("#up").textContent=$("#ping").textContent="--";
+  $("#down2").textContent="0.00 Mbps";$("#up2").textContent="0.00 Mbps";$("#ping2").textContent="-- ms";$("#timer").textContent="00:00:00";
+  showToast("Disconnected");
 }
+connectBtn.onclick=()=>connected?disconnect():connect();
 
-function startTimer(){
-
-  clearInterval(timerInterval);
-
-  timerInterval =
-    setInterval(() => {
-
-      seconds++;
-      updateTimer();
-
-    },1000);
-
+function openPanel(name){
+  $("#homePanel").style.display=name==="home"?"block":"none";
+  $$(".panels").forEach(p=>p.classList.remove("active"));
+  if(name!=="home")$("#"+name+"Panel").classList.add("active");
+  $$(".navbtn").forEach(b=>b.classList.toggle("active",b.dataset.panel===name));
 }
-
-function updateTimer(){
-
-  const h =
-    Math.floor(seconds / 3600);
-
-  const m =
-    Math.floor((seconds % 3600) / 60);
-
-  const s =
-    seconds % 60;
-
-  document
-    .getElementById("timer")
-    .textContent =
-    String(h).padStart(2,"0") + ":" +
-    String(m).padStart(2,"0") + ":" +
-    String(s).padStart(2,"0");
-
-}
-
-function startNetworkStats(){
-
-  clearInterval(networkInterval);
-
-  networkInterval =
-    setInterval(() => {
-
-      if(!connected){
-        return;
-      }
-
-      const serverSelect =
-        document.getElementById("server");
-
-      const selectedOption =
-        serverSelect.options[
-          serverSelect.selectedIndex
-        ];
-
-      const basePing =
-        Number(
-          selectedOption.dataset.ping
-        ) || 50;
-
-      const ping =
-        Math.round(
-          basePing +
-          Math.random() * 18
-        );
-
-      const download =
-        Number(
-          (
-            3 +
-            Math.random() * 42
-          ).toFixed(2)
-        );
-
-      const upload =
-        Number(
-          (
-            1 +
-            Math.random() * 17
-          ).toFixed(2)
-        );
-
-      document
-        .getElementById("ping")
-        .textContent =
-        ping + " ms";
-
-      document
-        .getElementById("download")
-        .textContent =
-        download.toFixed(2) + " Mbps";
-
-      document
-        .getElementById("upload")
-        .textContent =
-        upload.toFixed(2) + " Mbps";
-
-      totalDownMB +=
-        download / 8;
-
-      totalUpMB +=
-        upload / 8;
-
-      document
-        .getElementById("totalDownload")
-        .textContent =
-        formatData(totalDownMB);
-
-      document
-        .getElementById("totalUpload")
-        .textContent =
-        formatData(totalUpMB);
-
-      downloadHistory.push(download);
-      uploadHistory.push(upload);
-
-      if(downloadHistory.length > 30){
-        downloadHistory.shift();
-      }
-
-      if(uploadHistory.length > 30){
-        uploadHistory.shift();
-      }
-
-      drawGraph();
-
-    },1000);
-
-}
-
-function formatData(mb){
-
-  if(mb >= 1024){
-
-    return (
-      mb / 1024
-    ).toFixed(2) + " GB";
-
-  }
-
-  return mb.toFixed(2) + " MB";
-
-}
-
-function getISPName(value){
-
-  const names = {
-    dialog:"Dialog",
-    mobitel:"SLT-Mobitel",
-    hutch:"Hutch",
-    airtel:"Airtel",
-    custom:"Custom ISP"
-  };
-
-  return names[value] || value;
-
-}
-
-const canvas =
-  document.getElementById("trafficGraph");
-
-const ctx =
-  canvas.getContext("2d");
-
-function resizeCanvas(){
-
-  const ratio =
-    window.devicePixelRatio || 1;
-
-  canvas.width =
-    canvas.clientWidth * ratio;
-
-  canvas.height =
-    canvas.clientHeight * ratio;
-
-  ctx.setTransform(
-    ratio,
-    0,
-    0,
-    ratio,
-    0,
-    0
-  );
-
-  drawGraph();
-
-}
-
-window.addEventListener(
-  "resize",
-  resizeCanvas
-);
-
-function drawGraph(){
-
-  const width =
-    canvas.clientWidth;
-
-  const height =
-    canvas.clientHeight;
-
-  ctx.clearRect(
-    0,
-    0,
-    width,
-    height
-  );
-
-  ctx.strokeStyle =
-    "rgba(255,255,255,.055)";
-
-  ctx.lineWidth = 1;
-
-  for(
-    let y = 20;
-    y < height;
-    y += 25
-  ){
-
-    ctx.beginPath();
-    ctx.moveTo(0,y);
-    ctx.lineTo(width,y);
-    ctx.stroke();
-
-  }
-
-  const allValues = [
-    ...downloadHistory,
-    ...uploadHistory
-  ];
-
-  const max =
-    Math.max(
-      50,
-      ...allValues
-    );
-
-  drawLine(
-    downloadHistory,
-    max,
-    "#00b7ff"
-  );
-
-  drawLine(
-    uploadHistory,
-    max,
-    "#7c3aed"
-  );
-
-}
-
-function drawLine(
-  data,
-  max,
-  color
-){
-
-  const width =
-    canvas.clientWidth;
-
-  const height =
-    canvas.clientHeight;
-
-  const step =
-    width /
-    (data.length - 1);
-
-  ctx.beginPath();
-
-  data.forEach(
-    (value,index) => {
-
-      const x =
-        index * step;
-
-      const y =
-        height -
-        (value / max) *
-        (height - 15);
-
-      if(index === 0){
-        ctx.moveTo(x,y);
-      }else{
-        ctx.lineTo(x,y);
-      }
-
-    }
-  );
-
-  ctx.strokeStyle = color;
-  ctx.lineWidth = 2;
-  ctx.shadowBlur = 12;
-  ctx.shadowColor = color;
-
-  ctx.stroke();
-
-  ctx.shadowBlur = 0;
-
-}
-
-resizeCanvas();
-updateTimer();
-
+$$(".navbtn").forEach(b=>b.onclick=()=>openPanel(b.dataset.panel));
+$("#serverBtn").onclick=()=>openPanel("servers");
+$("#menuBtn").onclick=()=>openPanel("settings");
+$("#proBtn").onclick=()=>showToast("PRO screen can be added later");
+$$(".chooseServer").forEach(b=>b.onclick=()=>{
+  $("#serverName").textContent=b.dataset.name;$("#serverSub").textContent=b.dataset.sub;
+  openPanel("home");showToast("Server selected: "+b.dataset.name);
+});
 </script>
-
 </body>
 </html>
