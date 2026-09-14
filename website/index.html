@@ -671,5 +671,50 @@ if(appAvailable()){
 }
 </script>
 
+
+<script>
+/* Browser -> Aethera Android app deep-link */
+window.connectVPN = function () {
+
+  /* When website is already running inside Aethera WebView */
+  if (typeof window.AndroidVPN !== "undefined") {
+    try {
+      setStatus("Connecting...", "Starting secure VPN tunnel");
+      AndroidVPN.connect();
+      return;
+    } catch (e) {}
+  }
+
+  /* Normal Chrome/browser: open Aethera app */
+  var start = Date.now();
+
+  window.location.href = "aetheravpn://connect";
+
+  setTimeout(function () {
+    if (Date.now() - start < 2500) {
+      var note = document.getElementById("browserNote");
+      if (note) {
+        note.style.display = "block";
+        note.textContent =
+          "Opening Aethera VPN app. If nothing happens, install/open Aethera VPN first.";
+      }
+    }
+  }, 1400);
+};
+
+window.disconnectVPN = function () {
+
+  if (typeof window.AndroidVPN !== "undefined") {
+    try {
+      setStatus("Disconnecting...", "Stopping VPN tunnel");
+      AndroidVPN.disconnect();
+      return;
+    } catch (e) {}
+  }
+
+  window.location.href = "aetheravpn://disconnect";
+};
+</script>
+
 </body>
 </html>

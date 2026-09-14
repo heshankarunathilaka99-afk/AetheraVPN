@@ -142,6 +142,8 @@ public class MainActivity extends Activity {
         setContentView(webView);
 
         webView.loadUrl(SITE);
+
+        handleDeepLink(getIntent());
     }
 
     private class AetheraTunnel
@@ -588,6 +590,58 @@ public class MainActivity extends Activity {
                     null
             );
         });
+    }
+
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+
+        setIntent(intent);
+
+        handleDeepLink(intent);
+    }
+
+    private void handleDeepLink(Intent intent) {
+
+        if (intent == null) {
+            return;
+        }
+
+        Uri uri = intent.getData();
+
+        if (uri == null) {
+            return;
+        }
+
+        if (!"aetheravpn".equalsIgnoreCase(uri.getScheme())) {
+            return;
+        }
+
+        String host = uri.getHost();
+
+        if ("connect".equalsIgnoreCase(host)) {
+
+            runOnUiThread(() -> {
+
+                if (!configFile.exists()) {
+
+                    pendingConnectAfterImport = true;
+
+                    sendStatus("SELECT_CONFIG");
+
+                    openConfigPicker();
+
+                    return;
+                }
+
+                requestPermissionAndConnect();
+            });
+
+        } else if ("disconnect".equalsIgnoreCase(host)) {
+
+            disconnectTunnel();
+        }
     }
 
     @Override

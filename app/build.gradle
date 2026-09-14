@@ -16,8 +16,8 @@ android {
         applicationId "com.aethera.vpn2"
         minSdk 24
         targetSdk 35
-        versionCode 8
-        versionName "1.8-web-control"
+        versionCode 9
+        versionName "1.9-web-connect"
     }
 }
 
