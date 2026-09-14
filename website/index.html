@@ -2,206 +2,525 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#07111f">
-<title>Aethera VPN</title>
-<meta name="description" content="Aethera VPN - Private, secure and simple VPN experience.">
+<title>Aethera VPN — Secure. Private. Fast.</title>
+
 <style>
+:root{
+  --bg:#050b14;
+  --bg2:#091525;
+  --card:#0d1b2c;
+  --text:#ffffff;
+  --muted:#9db0c5;
+  --border:rgba(255,255,255,.09);
+  --accent:#25d7ff;
+  --accent2:#795dff;
+  --nav:rgba(5,11,20,.75);
+}
+
+body.light{
+  --bg:#eef5fb;
+  --bg2:#ffffff;
+  --card:#ffffff;
+  --text:#102033;
+  --muted:#60758b;
+  --border:rgba(0,0,0,.10);
+  --nav:rgba(255,255,255,.82);
+}
+
 *{box-sizing:border-box;margin:0;padding:0}
+
 html{scroll-behavior:smooth}
+
 body{
   font-family:Arial,Helvetica,sans-serif;
+  color:var(--text);
   background:
-    radial-gradient(circle at 20% 20%,rgba(0,208,255,.16),transparent 35%),
-    radial-gradient(circle at 80% 70%,rgba(91,77,255,.18),transparent 35%),
-    #050b14;
-  color:#fff;min-height:100vh
+  radial-gradient(circle at 20% 10%,rgba(37,215,255,.14),transparent 30%),
+  radial-gradient(circle at 80% 40%,rgba(121,93,255,.13),transparent 32%),
+  var(--bg);
+  transition:.3s;
 }
+
 nav{
-  width:100%;padding:18px 7%;
-  display:flex;align-items:center;justify-content:space-between;
-  position:fixed;top:0;z-index:20;
-  background:rgba(5,11,20,.72);
-  backdrop-filter:blur(15px);
-  border-bottom:1px solid rgba(255,255,255,.07)
+  position:fixed;
+  top:0;
+  width:100%;
+  z-index:100;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:16px 7%;
+  background:var(--nav);
+  backdrop-filter:blur(18px);
+  border-bottom:1px solid var(--border);
 }
-.logo{font-size:22px;font-weight:800;letter-spacing:.5px}
-.logo span{color:#33d6ff}
-nav a{color:#c9d7e8;text-decoration:none;margin-left:22px;font-size:14px}
+
+.logo{
+  font-size:22px;
+  font-weight:900;
+}
+
+.logo span{color:var(--accent)}
+
+.links a{
+  color:var(--muted);
+  text-decoration:none;
+  margin:0 12px;
+  font-size:14px;
+}
+
+.theme{
+  border:1px solid var(--border);
+  background:var(--card);
+  color:var(--text);
+  width:42px;
+  height:42px;
+  border-radius:50%;
+  cursor:pointer;
+}
+
 .hero{
-  min-height:100vh;padding:130px 8% 70px;
-  display:grid;grid-template-columns:1.1fr .9fr;
-  align-items:center;gap:60px
+  min-height:100vh;
+  padding:120px 8% 70px;
+  display:grid;
+  grid-template-columns:1.05fr .95fr;
+  align-items:center;
+  gap:40px;
 }
+
 .badge{
-  display:inline-block;padding:8px 14px;border-radius:30px;
-  background:rgba(51,214,255,.10);
-  border:1px solid rgba(51,214,255,.35);
-  color:#73e7ff;font-size:13px;margin-bottom:18px
+  display:inline-block;
+  padding:8px 14px;
+  border-radius:30px;
+  border:1px solid rgba(37,215,255,.35);
+  color:var(--accent);
+  background:rgba(37,215,255,.08);
+  margin-bottom:18px;
 }
-h1{font-size:clamp(44px,7vw,86px);line-height:.98;margin-bottom:22px}
-h1 span{
-  background:linear-gradient(90deg,#46e6ff,#8f75ff);
-  -webkit-background-clip:text;color:transparent
+
+h1{
+  font-size:clamp(48px,7vw,88px);
+  line-height:.96;
+  letter-spacing:-3px;
 }
-.hero p{font-size:18px;line-height:1.7;color:#a9bacd;max-width:600px}
-.buttons{margin-top:32px;display:flex;gap:14px;flex-wrap:wrap}
+
+.gradient{
+  background:linear-gradient(90deg,var(--accent),#a58bff);
+  -webkit-background-clip:text;
+  color:transparent;
+}
+
+.hero p{
+  color:var(--muted);
+  line-height:1.7;
+  max-width:620px;
+  font-size:18px;
+  margin-top:25px;
+}
+
+.buttons{
+  display:flex;
+  gap:14px;
+  flex-wrap:wrap;
+  margin-top:30px;
+}
+
 .btn{
-  display:inline-block;padding:15px 25px;border-radius:13px;
-  text-decoration:none;font-weight:700;transition:.2s
+  display:inline-block;
+  padding:15px 24px;
+  border-radius:14px;
+  text-decoration:none;
+  font-weight:800;
+  transition:.25s;
 }
+
+.btn:hover{transform:translateY(-3px)}
+
 .primary{
-  background:linear-gradient(90deg,#20cfff,#755cff);
-  color:white;box-shadow:0 10px 35px rgba(61,125,255,.24)
+  background:linear-gradient(90deg,var(--accent),var(--accent2));
+  color:white;
+  box-shadow:0 14px 40px rgba(70,120,255,.25);
 }
-.secondary{border:1px solid #27394f;color:#dceaff;background:#0b1625}
-.btn:hover{transform:translateY(-2px)}
-.phone{
-  max-width:370px;margin:auto;padding:12px;border-radius:40px;
-  background:linear-gradient(145deg,#152439,#070d16);
-  box-shadow:0 25px 80px rgba(0,0,0,.55);
-  border:1px solid #26394f
+
+.secondary{
+  border:1px solid var(--border);
+  color:var(--text);
+  background:var(--card);
 }
-.screen{
-  min-height:570px;border-radius:31px;padding:34px 24px;
+
+.globe-wrap{
+  display:grid;
+  place-items:center;
+  min-height:520px;
+  position:relative;
+}
+
+.globe{
+  width:330px;
+  height:330px;
+  border-radius:50%;
+  position:relative;
   background:
-    radial-gradient(circle at 50% 25%,rgba(49,218,255,.18),transparent 32%),
-    linear-gradient(#081526,#07101c);
-  text-align:center
+  radial-gradient(circle at 35% 30%,rgba(255,255,255,.2),transparent 20%),
+  repeating-linear-gradient(0deg,transparent 0 30px,rgba(70,225,255,.22) 31px 32px),
+  repeating-linear-gradient(90deg,transparent 0 38px,rgba(70,225,255,.20) 39px 40px),
+  radial-gradient(circle,#143e63,#071526 68%);
+  border:2px solid rgba(72,224,255,.55);
+  box-shadow:
+  0 0 50px rgba(37
+cd ~ && \
+pkg install git gh python -y && \
+[ -d "$HOME/AetheraVPN/.git" ] || gh repo clone heshankarunathilaka99-afk/AetheraVPN "$HOME/AetheraVPN" && \
+cd "$HOME/AetheraVPN" && \
+git config user.name "heshankarunathilaka99-afk" && \
+git config user.email "heshankarunathilaka99-afk@users.noreply.github.com" && \
+mkdir -p website .github/workflows app/src/main/java/com/aethera/vpn && \
+
+cat > website/index.html <<'EOF'
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#06101d">
+<title>Aethera VPN</title>
+
+<style>
+:root{
+ --bg:#050b14;
+ --card:#0b1725;
+ --card2:#101f31;
+ --text:#fff;
+ --muted:#8da2b8;
+ --line:rgba(255,255,255,.09);
+ --cyan:#25d8ff;
+ --purple:#745fff;
+ --green:#42ef98;
 }
-.shield{
-  width:145px;height:145px;margin:65px auto 25px;
-  border-radius:50%;display:grid;place-items:center;
-  font-size:55px;
-  border:2px solid rgba(70,230,255,.55);
-  box-shadow:0 0 55px rgba(70,230,255,.18);
-  background:rgba(37,197,255,.07)
+body.light{
+ --bg:#eef5fb;
+ --card:#fff;
+ --card2:#f5f9fd;
+ --text:#102136;
+ --muted:#60758b;
+ --line:rgba(0,0,0,.1);
 }
-.status{font-size:25px;font-weight:800}
-.sub{color:#8ca2b8;margin-top:8px}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+ font-family:Arial,sans-serif;
+ background:
+ radial-gradient(circle at 50% 0,rgba(37,216,255,.15),transparent 32%),
+ var(--bg);
+ color:var(--text);
+ min-height:100vh;
+ transition:.3s;
+}
+header{
+ position:sticky;top:0;z-index:10;
+ display:flex;align-items:center;justify-content:space-between;
+ padding:17px 20px;
+ background:rgba(5,11,20,.78);
+ backdrop-filter:blur(18px);
+ border-bottom:1px solid var(--line);
+}
+.brand{font-size:20px;font-weight:900}
+.brand span{color:var(--cyan)}
+.theme{
+ width:42px;height:42px;border-radius:50%;
+ border:1px solid var(--line);
+ background:var(--card);color:var(--text);
+ font-size:18px
+}
+.hero{text-align:center;padding:42px 20px 20px}
+.hero h1{font-size:40px;margin-bottom:10px}
+.grad{
+ background:linear-gradient(90deg,var(--cyan),#9d85ff);
+ color:transparent;background-clip:text
+}
+.hero p{color:var(--muted);line-height:1.6}
+
+.globe-wrap{
+ height:280px;display:grid;place-items:center;
+ position:relative
+}
+.globe{
+ width:205px;height:205px;border-radius:50%;
+ border:2px solid rgba(37,216,255,.6);
+ background:
+ repeating-linear-gradient(0deg,transparent 0 24px,rgba(37,216,255,.16) 25px 26px),
+ repeating-linear-gradient(90deg,transparent 0 31px,rgba(37,216,255,.15) 32px 33px),
+ radial-gradient(circle at 35% 30%,#17456c,#071522 70%);
+ box-shadow:0 0 55px rgba(37,216,255,.2);
+ animation:float 3.5s ease-in-out infinite;
+ position:relative;
+ overflow:hidden
+}
+.globe:after{
+ content:"";position:absolute;
+ width:360px;height:75px;
+ left:-80px;top:64px;
+ border:2px solid rgba(122,95,255,.65);
+ border-radius:50%;
+ transform:rotate(-16deg);
+ animation:orbit 7s linear infinite
+}
+@keyframes float{
+ 50%{transform:translateY(-12px)}
+}
+@keyframes orbit{
+ to{transform:rotate(344deg)}
+}
+.dot{
+ position:absolute;width:11px;height:11px;border-radius:50%;
+ background:#60f4ff;box-shadow:0 0 15px #60f4ff
+}
+.d1{left:28%;top:30%}.d2{right:25%;top:48%}.d3{left:48%;bottom:24%}
+
+.panel{
+ margin:0 16px 18px;
+ padding:22px;
+ background:var(--card);
+ border:1px solid var(--line);
+ border-radius:25px
+}
+.status-icon{
+ width:80px;height:80px;border-radius:50%;
+ margin:0 auto 15px;
+ display:grid;place-items:center;
+ font-size:36px;
+ border:2px solid var(--cyan);
+ box-shadow:0 0 30px rgba(37,216,255,.17)
+}
+#vpnStatus{
+ text-align:center;font-size:25px;font-weight:800
+}
+.statusSub{
+ text-align:center;color:var(--muted);
+ margin-top:7px;font-size:14px
+}
 .connect{
-  margin-top:45px;width:100%;padding:17px;border:0;border-radius:16px;
-  color:#fff;font-weight:bold;font-size:16px;
-  background:linear-gradient(90deg,#22cfff,#705bff)
+ width:100%;padding:17px;margin-top:22px;
+ border:0;border-radius:16px;color:white;
+ font-size:17px;font-weight:900;
+ background:linear-gradient(90deg,var(--cyan),var(--purple))
 }
-section{padding:90px 8%}
-.title{text-align:center;font-size:38px;margin-bottom:12px}
-.subtitle{text-align:center;color:#8fa3b8;margin-bottom:48px}
-.cards{
-  display:grid;grid-template-columns:repeat(3,1fr);
-  gap:22px;max-width:1150px;margin:auto
+.disconnect{
+ width:100%;padding:15px;margin-top:10px;
+ border-radius:16px;
+ border:1px solid var(--line);
+ background:var(--card2);color:var(--text);
+ font-weight:800
 }
-.card{
-  padding:28px;border-radius:22px;
-  background:rgba(11,24,40,.78);
-  border:1px solid rgba(255,255,255,.08)
+.import{
+ width:100%;padding:14px;margin-top:10px;
+ border-radius:16px;
+ border:1px solid rgba(37,216,255,.25);
+ color:var(--cyan);background:rgba(37,216,255,.06);
+ font-weight:800
 }
-.card .icon{font-size:34px;margin-bottom:18px}
-.card h3{margin-bottom:12px}
-.card p{color:#93a7bc;line-height:1.65}
-.cta{
-  max-width:1000px;margin:30px auto 80px;text-align:center;
-  padding:55px 25px;border-radius:28px;
-  background:linear-gradient(135deg,rgba(34,207,255,.14),rgba(112,91,255,.18));
-  border:1px solid rgba(104,178,255,.2)
+.section{padding:25px 16px}
+.section h2{font-size:26px;margin-bottom:8px}
+.section>p{color:var(--muted);margin-bottom:18px}
+.server{
+ display:flex;align-items:center;justify-content:space-between;
+ padding:17px;margin-bottom:11px;
+ background:var(--card);
+ border:1px solid var(--line);
+ border-radius:17px
 }
-.cta h2{font-size:38px;margin-bottom:15px}
-.cta p{color:#9fb3c8;margin-bottom:25px}
+.server small{color:var(--muted)}
+.ready{color:var(--green);font-size:13px;font-weight:bold}
+.info{
+ margin:18px 16px;padding:17px;
+ border:1px solid rgba(37,216,255,.2);
+ border-radius:17px;color:var(--muted);
+ background:rgba(37,216,255,.05);
+ line-height:1.55;font-size:13px
+}
 footer{
-  padding:30px;text-align:center;color:#71869c;
-  border-top:1px solid rgba(255,255,255,.07)
+ text-align:center;padding:30px;
+ color:var(--muted);font-size:13px
 }
-.small{font-size:12px;margin-top:8px}
-@media(max-width:850px){
-  .hero{grid-template-columns:1fr;text-align:center}
-  .hero p{margin:auto}
-  .buttons{justify-content:center}
-  .phone{margin-top:15px}
-  .cards{grid-template-columns:1fr}
-  nav .links{display:none}
+.browserNotice{
+ display:none;margin:12px 16px;padding:14px;
+ border-radius:14px;
+ background:#332812;color:#ffd978;
+ border:1px solid #66521d
 }
 </style>
 </head>
+
 <body>
 
-<nav>
-  <div class="logo">Aethera <span>VPN</span></div>
-  <div class="links">
-    <a href="#features">Features</a>
-    <a href="#download">Download</a>
-    <a href="https://github.com/heshankarunathilaka99-afk/AetheraVPN">GitHub</a>
-  </div>
-</nav>
+<header>
+ <div class="brand">Aethera <span>VPN</span></div>
+ <button class="theme" id="themeBtn" onclick="toggleTheme()">☀️</button>
+</header>
 
-<main class="hero">
-  <div>
-    <div class="badge">SECURE • PRIVATE • FAST</div>
-    <h1>Your internet.<br><span>Protected.</span></h1>
-    <p>
-      Aethera VPN provides a clean, simple VPN experience designed for privacy,
-      secure connections and easy everyday use.
-    </p>
-    <div class="buttons">
-      <a class="btn primary"
-         href="https://github.com/heshankarunathilaka99-afk/AetheraVPN/actions">
-         Get Aethera VPN
-      </a>
-      <a class="btn secondary"
-         href="https://github.com/heshankarunathilaka99-afk/AetheraVPN">
-         View GitHub
-      </a>
-    </div>
-  </div>
+<div id="browserNotice" class="browserNotice">
+ Open this page inside the Aethera VPN Android app to use VPN controls.
+</div>
 
-  <div class="phone">
-    <div class="screen">
-      <div style="font-weight:bold;font-size:20px">Aethera VPN</div>
-      <div class="shield">🛡️</div>
-      <div class="status">Ready to connect</div>
-      <div class="sub">Secure VPN connection</div>
-      <button class="connect">CONNECT</button>
-    </div>
-  </div>
-</main>
-
-<section id="features">
-  <h2 class="title">Built for privacy</h2>
-  <p class="subtitle">A simple VPN interface with secure tunnel support.</p>
-
-  <div class="cards">
-    <div class="card">
-      <div class="icon">🔐</div>
-      <h3>Secure Tunnel</h3>
-      <p>Uses modern VPN technology for encrypted network connections.</p>
-    </div>
-
-    <div class="card">
-      <div class="icon">⚡</div>
-      <h3>Simple Connection</h3>
-      <p>Connect and disconnect from a clean Android interface without unnecessary complexity.</p>
-    </div>
-
-    <div class="card">
-      <div class="icon">🌐</div>
-      <h3>VPN Profiles</h3>
-      <p>Designed to work with supported VPN profiles and authorized VPN services.</p>
-    </div>
-  </div>
+<section class="hero">
+ <h1>Aethera <span class="grad">VPN</span></h1>
+ <p>Secure VPN control interface</p>
 </section>
 
-<div class="cta" id="download">
-  <h2>Get Aethera VPN</h2>
-  <p>Android application development builds are available from the project repository.</p>
-  <a class="btn primary"
-     href="https://github.com/heshankarunathilaka99-afk/AetheraVPN/actions">
-     Download / Build
-  </a>
+<div class="globe-wrap">
+ <div class="globe">
+  <span class="dot d1"></span>
+  <span class="dot d2"></span>
+  <span class="dot d3"></span>
+ </div>
+</div>
+
+<div class="panel">
+ <div class="status-icon">🛡️</div>
+ <div id="vpnStatus">Disconnected</div>
+ <div id="statusSub" class="statusSub">VPN tunnel is not active</div>
+
+ <button id="connectBtn" class="connect" onclick="connectVPN()">
+  CONNECT
+ </button>
+
+ <button class="disconnect" onclick="disconnectVPN()">
+  DISCONNECT
+ </button>
+
+ <button class="import" onclick="importConfig()">
+  IMPORT WIREGUARD PROFILE
+ </button>
+</div>
+
+<section class="section">
+ <h2>Servers</h2>
+ <p>Select servers through your authorized VPN profile.</p>
+
+ <div class="server">
+  <div>🇺🇸 <b>United States</b><br><small>WireGuard profile</small></div>
+  <span class="ready">● Ready</span>
+ </div>
+
+ <div class="server">
+  <div>🇳🇱 <b>Netherlands</b><br><small>WireGuard profile</small></div>
+  <span class="ready">● Ready</span>
+ </div>
+
+ <div class="server">
+  <div>🇯🇵 <b>Japan</b><br><small>WireGuard profile</small></div>
+  <span class="ready">● Ready</span>
+ </div>
+
+ <div class="server">
+  <div>🇸🇬 <b>Singapore</b><br><small>WireGuard profile</small></div>
+  <span class="ready">● Ready</span>
+ </div>
+</section>
+
+<div class="info">
+ Aethera website provides the VPN control interface. The encrypted tunnel
+ is created by the Android app using a WireGuard profile from an authorized
+ VPN provider. Private WireGuard keys are not stored on this website.
 </div>
 
 <footer>
-  <div>Aethera VPN</div>
-  <div class="small">Made By Ravidu Heshan</div>
+ <b>Aethera VPN</b><br><br>
+ Made By Ravidu Heshan
 </footer>
+
+<script>
+function inApp(){
+ return typeof AndroidVPN !== "undefined";
+}
+
+function connectVPN(){
+ if(!inApp()){
+  document.getElementById("browserNotice").style.display="block";
+  return;
+ }
+ document.getElementById("vpnStatus").textContent="Connecting...";
+ document.getElementById("statusSub").textContent="Starting secure tunnel";
+ AndroidVPN.connect();
+}
+
+function disconnectVPN(){
+ if(!inApp()){
+  document.getElementById("browserNotice").style.display="block";
+  return;
+ }
+ document.getElementById("vpnStatus").textContent="Disconnecting...";
+ AndroidVPN.disconnect();
+}
+
+function importConfig(){
+ if(!inApp()){
+  document.getElementById("browserNotice").style.display="block";
+  return;
+ }
+ AndroidVPN.importConfig();
+}
+
+function onVpnState(s){
+ const status=document.getElementById("vpnStatus");
+ const sub=document.getElementById("statusSub");
+
+ if(s==="CONNECTED"){
+  status.textContent="Protected";
+  sub.textContent="Encrypted VPN tunnel active";
+ }
+ else if(s==="CONNECTING"){
+  status.textContent="Connecting...";
+  sub.textContent="Starting secure tunnel";
+ }
+ else if(s==="DISCONNECTED"){
+  status.textContent="Disconnected";
+  sub.textContent="VPN tunnel is not active";
+ }
+ else if(s==="DISCONNECTING"){
+  status.textContent="Disconnecting...";
+ }
+ else if(s==="SELECT_CONFIG"){
+  status.textContent="Select VPN Profile";
+  sub.textContent="Choose your WireGuard config";
+ }
+ else if(s==="CONFIG_IMPORTED"){
+  status.textContent="Profile Ready";
+  sub.textContent="WireGuard profile imported";
+ }
+ else if(s==="VPN_PERMISSION_DENIED"){
+  status.textContent="Permission Required";
+  sub.textContent="Android VPN permission was denied";
+ }
+ else if(s.startsWith("ERROR:")){
+  status.textContent="Connection Error";
+  sub.textContent=s.substring(6);
+ }
+}
+
+window.aetheraVpnStatus=onVpnState;
+
+window.addEventListener("aethera-vpn-status",e=>{
+ if(e.detail && e.detail.status) onVpnState(e.detail.status);
+});
+
+function toggleTheme(){
+ document.body.classList.toggle("light");
+ const light=document.body.classList.contains("light");
+ themeBtn.textContent=light?"🌙":"☀️";
+ localStorage.setItem("aethera-theme",light?"light":"dark");
+}
+
+if(localStorage.getItem("aethera-theme")==="light"){
+ document.body.classList.add("light");
+ document.getElementById("themeBtn").textContent="🌙";
+}
+
+if(!inApp()){
+ document.getElementById("browserNotice").style.display="block";
+}
+</script>
 
 </body>
 </html>
