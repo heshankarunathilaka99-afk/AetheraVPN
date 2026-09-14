@@ -13,11 +13,19 @@ android {
     compileSdk 35
 
     defaultConfig {
-        applicationId "com.aethera.vpn2"
+        ndk {
+            abiFilters 'armeabi-v7a'
+        }
+        applicationId "com.aethera.vpn3"
         minSdk 24
         targetSdk 35
-        versionCode 9
-        versionName "1.9-web-connect"
+        versionCode 10
+        versionName "2.0-android10-fix"
+    }
+    packaging {
+        jniLibs {
+            useLegacyPackaging true
+        }
     }
 }
 
