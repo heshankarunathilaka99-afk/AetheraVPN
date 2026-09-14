@@ -298,5 +298,85 @@ $$(".chooseServer").forEach(b=>b.onclick=()=>{
   openPanel("home");showToast("Server selected: "+b.dataset.name);
 });
 </script>
+
+<script id="AETHERA_NATIVE_VPN_BRIDGE_V1">
+(function () {
+
+    function setStatus(message) {
+        const status = document.getElementById("statusText");
+        if (status) status.textContent = message;
+    }
+
+    function setButton(text, connected) {
+        const label = document.getElementById("connectLabel");
+        const btn = document.getElementById("connectBtn");
+
+        if (label) label.textContent = text;
+
+        if (btn) {
+            if (connected) {
+                btn.classList.add("connected");
+                btn.classList.remove("pulse");
+            } else {
+                btn.classList.remove("connected");
+                btn.classList.add("pulse");
+            }
+        }
+    }
+
+    window.AetheraNativeStatus = function (state) {
+
+        if (state === "CONFIG_REQUIRED") {
+            setButton("CONNECT", false);
+            setStatus("Server configuration required");
+        }
+
+        if (state === "PERMISSION_DENIED") {
+            setButton("CONNECT", false);
+            setStatus("VPN permission denied");
+        }
+
+        if (state === "DISCONNECTED") {
+            setButton("CONNECT", false);
+            setStatus("Disconnected");
+        }
+
+        if (state === "CONNECTED") {
+            setButton("CONNECTED", true);
+            setStatus("Secure VPN tunnel active");
+        }
+    };
+
+    window.addEventListener("load", function () {
+
+        setTimeout(function () {
+
+            const btn = document.getElementById("connectBtn");
+
+            if (!btn || !window.AndroidVPN) return;
+
+            btn.onclick = function () {
+
+                const isConnected =
+                    btn.classList.contains("connected");
+
+                try {
+                    if (isConnected) {
+                        window.AndroidVPN.disconnect();
+                    } else {
+                        setStatus("Requesting VPN permission...");
+                        window.AndroidVPN.connect();
+                    }
+                } catch (e) {
+                    setStatus("Native VPN error");
+                }
+            };
+
+        }, 300);
+    });
+
+})();
+</script>
+
 </body>
 </html>
