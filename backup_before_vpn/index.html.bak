@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="theme-color" content="#06131f" />
+<title>Aethera VPN</title>
+<style>
+:root{
+  --bg:#03101a;
+  --bg2:#071b2a;
+  --card:rgba(6,24,38,.86);
+  --card2:rgba(10,34,52,.88);
+  --text:#f4fbff;
+  --muted:#8fb8ce;
+  --line:#0db6eb;
+  --cyan:#10e6ff;
+  --blue:#1685ff;
+  --green:#2df293;
+  --danger:#ff5470;
+  --shadow:0 0 24px rgba(16,230,255,.23);
+}
+body.light{
+  --bg:#eef8ff;
+  --bg2:#dcedf8;
+  --card:rgba(255,255,255,.92);
+  --card2:rgba(239,249,255,.95);
+  --text:#082035;
+  --muted:#52738b;
+  --line:#168fd1;
+  --cyan:#00a9d8;
+  --blue:#1769e8;
+  --green:#0aaf68;
+  --danger:#df2c4d;
+  --shadow:0 10px 28px rgba(20,80,120,.14);
+}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:var(--bg);color:var(--text)}
+body{
+  background:
+    radial-gradient(circle at 50% 18%, rgba(0,174,255,.14), transparent 30%),
+    radial-gradient(circle at 50% 62%, rgba(0,229,255,.08), transparent 33%),
+    linear-gradient(180deg,var(--bg),var(--bg2));
+  transition:.3s ease;
+}
+button,select{font:inherit}
+button{-webkit-tap-highlight-color:transparent}
+.app{max-width:520px;margin:0 auto;min-height:100vh;padding:calc(14px + env(safe-area-inset-top)) 16px calc(94px + env(safe-area-inset-bottom));position:relative;overflow:hidden}
+.stars,.stars:before,.stars:after{content:"";position:absolute;inset:0;pointer-events:none;background-image:radial-gradient(circle,rgba(72,217,255,.65) 1px,transparent 1.2px);background-size:44px 44px;opacity:.22}
+.stars:before{transform:translate(15px,22px);background-size:70px 70px;opacity:.15}
+.top{display:flex;justify-content:space-between;align-items:center;position:relative;z-index:3}
+.iconbtn{width:44px;height:44px;border:1px solid rgba(17,207,255,.35);border-radius:14px;background:var(--card);color:var(--text);display:grid;place-items:center;box-shadow:var(--shadow)}
+.iconbtn svg{width:23px;height:23px}
+.brand{display:flex;flex-direction:column;align-items:center;margin-top:2px}
+.brand img{width:86px;height:86px;object-fit:cover;border-radius:24px;box-shadow:0 0 28px rgba(0,216,255,.28)}
+.brand h1{font-size:26px;margin:8px 0 0;letter-spacing:-.5px}
+.brand h1 span{background:linear-gradient(90deg,var(--cyan),var(--blue));-webkit-background-clip:text;background-clip:text;color:transparent}
+.brand small{letter-spacing:4px;color:var(--muted);font-size:9px}
+.hero{position:relative;z-index:2;text-align:center;margin-top:14px}
+.globe{height:165px;border-radius:38px;background:
+  radial-gradient(circle at 50% 85%,rgba(0,225,255,.48),transparent 34%),
+  radial-gradient(circle at 45% 50%,rgba(18,109,255,.25),transparent 38%),
+  linear-gradient(180deg,rgba(0,0,0,0),rgba(0,198,255,.08));
+  position:relative;overflow:hidden;border:1px solid rgba(18,207,255,.15)
+}
+.globe:before{
+  content:"";position:absolute;left:50%;bottom:-92px;width:330px;height:220px;transform:translateX(-50%);
+  border-radius:50%;border:1px solid rgba(56,228,255,.55);
+  box-shadow:inset 0 0 45px rgba(0,177,255,.22),0 0 35px rgba(0,220,255,.16);
+  background:
+   radial-gradient(circle at 35% 40%,rgba(0,225,255,.45) 0 2px,transparent 3px),
+   radial-gradient(circle at 65% 30%,rgba(0,225,255,.45) 0 2px,transparent 3px),
+   radial-gradient(circle at 58% 52%,rgba(0,225,255,.4) 0 2px,transparent 3px),
+   linear-gradient(90deg,transparent 49.5%,rgba(0,220,255,.18) 50%,transparent 50.5%),
+   linear-gradient(rgba(0,220,255,.1),rgba(0,220,255,.02));
+}
+.connect-wrap{margin-top:-50px;position:relative;z-index:4;display:flex;justify-content:center}
+.connect{
+  width:190px;height:190px;border-radius:50%;border:2px solid var(--cyan);background:
+  radial-gradient(circle at 50% 45%,rgba(0,218,255,.16),rgba(0,21,35,.96) 67%);
+  color:#fff;box-shadow:0 0 0 10px rgba(0,218,255,.08),0 0 45px rgba(0,230,255,.35),inset 0 0 35px rgba(0,190,255,.15);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;transition:.25s ease;cursor:pointer
+}
+body.light .connect{color:#082035;background:radial-gradient(circle at 50% 45%,#fff,#dff7ff 70%)}
+.connect:active{transform:scale(.97)}
+.connect .power{font-size:55px;line-height:1;color:var(--cyan);filter:drop-shadow(0 0 12px rgba(0,225,255,.7))}
+.connect strong{font-size:18px;letter-spacing:1.5px}
+.connect.connected{border-color:var(--green);box-shadow:0 0 0 10px rgba(45,242,147,.08),0 0 45px rgba(45,242,147,.34)}
+.connect.connected .power{color:var(--green)}
+.hint{margin:14px 0 16px;color:var(--muted);font-size:13px}
+.card{background:linear-gradient(180deg,var(--card),var(--card2));border:1px solid rgba(17,194,240,.45);border-radius:22px;box-shadow:var(--shadow);position:relative;z-index:2}
+.server{display:flex;align-items:center;padding:14px 15px;gap:12px;text-align:left;width:100%;color:var(--text)}
+.flag{width:48px;height:34px;border-radius:8px;background:linear-gradient(90deg,#f6a900 0 22%,#8d153a 22% 78%,#f6a900 78%);border:1px solid rgba(255,255,255,.18)}
+.server .info{flex:1}
+.server .title{font-size:17px;font-weight:750}
+.server .sub{font-size:12px;color:var(--muted);margin-top:3px}
+.chev{font-size:30px;color:#6bdfff}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);padding:12px 4px;margin-top:13px}
+.stat{padding:8px 4px;text-align:center;border-right:1px solid rgba(110,201,235,.25)}
+.stat:last-child{border-right:0}
+.stat b{display:block;font-size:15px;margin-top:6px}
+.stat span{font-size:11px;color:var(--muted)}
+.stat .sym{font-size:24px;color:#78dcff}
+.pro{margin-top:13px;padding:14px 15px;display:flex;align-items:center;gap:12px}
+.diamond{font-size:30px}
+.pro .info{flex:1}
+.pro b{font-size:15px}
+.pro small{display:block;color:var(--muted);margin-top:3px}
+.panels{display:none;margin-top:14px}
+.panels.active{display:block}
+.panel{padding:16px}
+.panel h3{margin:0 0 12px}
+.row{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid rgba(120,200,230,.16)}
+.row:last-child{border-bottom:0}
+select{max-width:55%;background:var(--card2);color:var(--text);border:1px solid rgba(0,191,240,.32);border-radius:12px;padding:8px}
+.theme-toggle{display:flex;background:var(--card2);border:1px solid rgba(0,191,240,.25);border-radius:999px;padding:3px}
+.theme-toggle button{border:0;background:transparent;color:var(--muted);padding:7px 10px;border-radius:999px}
+.theme-toggle button.active{background:linear-gradient(90deg,var(--cyan),var(--blue));color:#fff}
+.nav{position:fixed;left:50%;bottom:0;transform:translateX(-50%);width:min(520px,100%);padding:10px 14px calc(10px + env(safe-area-inset-bottom));z-index:20}
+.navbar{display:grid;grid-template-columns:repeat(4,1fr);background:rgba(4,17,28,.95);border:1px solid rgba(0,204,255,.35);border-radius:25px;padding:7px;box-shadow:0 -10px 35px rgba(0,0,0,.35)}
+body.light .navbar{background:rgba(247,252,255,.96)}
+.nav button{border:0;background:transparent;color:var(--muted);padding:7px 4px;border-radius:16px;font-size:11px;display:flex;flex-direction:column;gap:4px;align-items:center}
+.nav button .nicon{font-size:22px}
+.nav button.active{color:var(--cyan);background:rgba(0,214,255,.08)}
+.toast{position:fixed;left:50%;bottom:100px;transform:translateX(-50%) translateY(20px);opacity:0;background:#071b2a;color:#fff;border:1px solid rgba(0,220,255,.4);padding:10px 16px;border-radius:999px;transition:.25s;z-index:40;white-space:nowrap}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.splash{position:fixed;inset:0;z-index:100;background:#020814;display:flex;align-items:center;justify-content:center;transition:opacity .7s ease,visibility .7s ease}
+.splash.hide{opacity:0;visibility:hidden}
+.splash img{width:100%;height:100%;object-fit:cover;animation:splashZoom 3s ease forwards}
+.splash:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 65%,rgba(1,7,14,.18))}
+@keyframes splashZoom{from{transform:scale(1.03);filter:brightness(.88)}to{transform:scale(1);filter:brightness(1)}}
+.pulse{animation:pulse 1.4s ease-in-out infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 10px rgba(0,218,255,.08),0 0 35px rgba(0,230,255,.25)}50%{box-shadow:0 0 0 17px rgba(0,218,255,.03),0 0 58px rgba(0,230,255,.5)}}
+</style>
+</head>
+<body>
+<div class="splash" id="splash"><img src="aethera_splash.png" alt="Aethera VPN splash"></div>
+<div class="app">
+  <div class="stars"></div>
+  <div class="top">
+    <button class="iconbtn" id="menuBtn" aria-label="Menu">☰</button>
+    <div></div>
+    <button class="iconbtn" id="quickTheme" aria-label="Theme">☾</button>
+  </div>
+
+  <section id="homePanel">
+    <div class="brand">
+      <img src="aethera_logo.png" alt="Aethera VPN logo">
+      <h1>Aethera <span>VPN</span></h1>
+      <small>SECURE YOUR WORLD</small>
+    </div>
+
+    <div class="hero">
+      <div class="globe"></div>
+      <div class="connect-wrap">
+        <button class="connect pulse" id="connectBtn">
+          <div class="power">⏻</div>
+          <strong id="connectLabel">CONNECT</strong>
+        </button>
+      </div>
+      <div class="hint" id="statusText">Tap to Connect</div>
+    </div>
+
+    <button class="card server" id="serverBtn">
+      <div class="flag"></div>
+      <div class="info">
+        <div class="title" id="serverName">Sri Lanka</div>
+        <div class="sub" id="serverSub">Colombo · Fastest Server</div>
+      </div>
+      <div class="chev">›</div>
+    </button>
+
+    <div class="card stats">
+      <div class="stat"><div class="sym">◔</div><b id="down">--</b><span>Download Mbps</span></div>
+      <div class="stat"><div class="sym">⇧</div><b id="up">--</b><span>Upload Mbps</span></div>
+      <div class="stat"><div class="sym">⌁</div><b id="ping">--</b><span>Ping ms</span></div>
+      <div class="stat"><div class="sym">♢</div><b id="state">Offline</b><span>Status</span></div>
+    </div>
+
+    <button class="card pro" id="proBtn">
+      <div class="diamond">💎</div>
+      <div class="info">
+        <b>Aethera VPN PRO</b>
+        <small>Faster Servers · No Ads · Global Access</small>
+      </div>
+      <div class="chev">›</div>
+    </button>
+  </section>
+
+  <section class="panels" id="serversPanel">
+    <div class="card panel">
+      <h3>Servers</h3>
+      <div class="row"><span>Sri Lanka</span><button class="iconbtn chooseServer" data-name="Sri Lanka" data-sub="Colombo · Fastest Server" style="width:36px;height:36px">✓</button></div>
+      <div class="row"><span>Singapore</span><button class="iconbtn chooseServer" data-name="Singapore" data-sub="Singapore · Low Latency" style="width:36px;height:36px">→</button></div>
+      <div class="row"><span>India</span><button class="iconbtn chooseServer" data-name="India" data-sub="Mumbai · Fast Server" style="width:36px;height:36px">→</button></div>
+      <div class="row"><span>Germany</span><button class="iconbtn chooseServer" data-name="Germany" data-sub="Frankfurt · Secure Server" style="width:36px;height:36px">→</button></div>
+    </div>
+  </section>
+
+  <section class="panels" id="statsPanel">
+    <div class="card panel">
+      <h3>Connection Stats</h3>
+      <div class="row"><span>Connection Time</span><b id="timer">00:00:00</b></div>
+      <div class="row"><span>Download</span><b id="down2">0.00 Mbps</b></div>
+      <div class="row"><span>Upload</span><b id="up2">0.00 Mbps</b></div>
+      <div class="row"><span>Ping</span><b id="ping2">-- ms</b></div>
+    </div>
+  </section>
+
+  <section class="panels" id="settingsPanel">
+    <div class="card panel">
+      <h3>Settings</h3>
+      <div class="row">
+        <span>Theme</span>
+        <div class="theme-toggle">
+          <button id="darkBtn">Dark</button>
+          <button id="lightBtn">Light</button>
+        </div>
+      </div>
+      <div class="row"><span>ISP Profile</span>
+        <select id="isp">
+          <option>Dialog</option><option>SLT-Mobitel</option><option>Hutch</option><option>Airtel</option><option>Custom ISP</option>
+        </select>
+      </div>
+      <div class="row"><span>VPN Profile</span>
+        <select id="profile"><option>Default VPN</option><option>Fast Server</option><option>Gaming VPN</option><option>Private VPN</option></select>
+      </div>
+      <div class="row"><span>Version</span><b>2.0 UI</b></div>
+      <div class="row"><span>Credit</span><b>Made By Ravidu Heshan</b></div>
+    </div>
+  </section>
+</div>
+
+<div class="nav">
+  <div class="navbar">
+    <button class="active navbtn" data-panel="home"><span class="nicon">⌂</span>Home</button>
+    <button class="navbtn" data-panel="servers"><span class="nicon">◎</span>Servers</button>
+    <button class="navbtn" data-panel="stats"><span class="nicon">▥</span>Stats</button>
+    <button class="navbtn" data-panel="settings"><span class="nicon">⚙</span>Settings</button>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const splash=$("#splash"), connectBtn=$("#connectBtn"), connectLabel=$("#connectLabel"), statusText=$("#statusText");
+let connected=false, startTime=null, timerInt=null, statsInt=null;
+
+function applyTheme(mode){
+  document.body.classList.toggle("light",mode==="light");
+  localStorage.setItem("aethera-theme",mode);
+  $("#quickTheme").textContent=mode==="light"?"☀":"☾";
+  $("#darkBtn").classList.toggle("active",mode==="dark");
+  $("#lightBtn").classList.toggle("active",mode==="light");
+}
+applyTheme(localStorage.getItem("aethera-theme")||"dark");
+$("#quickTheme").onclick=()=>applyTheme(document.body.classList.contains("light")?"dark":"light");
+$("#darkBtn").onclick=()=>applyTheme("dark");
+$("#lightBtn").onclick=()=>applyTheme("light");
+
+window.addEventListener("load",()=>setTimeout(()=>splash.classList.add("hide"),2200));
+
+function showToast(t){const x=$("#toast");x.textContent=t;x.classList.add("show");setTimeout(()=>x.classList.remove("show"),1800)}
+function formatTime(ms){let s=Math.floor(ms/1000),h=String(Math.floor(s/3600)).padStart(2,"0");s%=3600;let m=String(Math.floor(s/60)).padStart(2,"0"),sec=String(s%60).padStart(2,"0");return `${h}:${m}:${sec}`}
+function updateStats(){
+  if(!connected)return;
+  const d=(4+Math.random()*38).toFixed(1),u=(1+Math.random()*17).toFixed(1),p=Math.floor(18+Math.random()*38);
+  $("#down").textContent=d;$("#up").textContent=u;$("#ping").textContent=p;
+  $("#down2").textContent=d+" Mbps";$("#up2").textContent=u+" Mbps";$("#ping2").textContent=p+" ms";
+}
+function connect(){
+  connected=true;startTime=Date.now();connectBtn.classList.add("connected");connectBtn.classList.remove("pulse");
+  connectLabel.textContent="CONNECTED";statusText.textContent="Secure connection active";$("#state").textContent="Online";
+  updateStats();statsInt=setInterval(updateStats,1200);timerInt=setInterval(()=>$("#timer").textContent=formatTime(Date.now()-startTime),1000);
+  showToast("Connected (UI demo)");
+}
+function disconnect(){
+  connected=false;connectBtn.classList.remove("connected");connectBtn.classList.add("pulse");
+  connectLabel.textContent="CONNECT";statusText.textContent="Tap to Connect";$("#state").textContent="Offline";
+  clearInterval(statsInt);clearInterval(timerInt);$("#down").textContent=$("#up").textContent=$("#ping").textContent="--";
+  $("#down2").textContent="0.00 Mbps";$("#up2").textContent="0.00 Mbps";$("#ping2").textContent="-- ms";$("#timer").textContent="00:00:00";
+  showToast("Disconnected");
+}
+connectBtn.onclick=()=>connected?disconnect():connect();
+
+function openPanel(name){
+  $("#homePanel").style.display=name==="home"?"block":"none";
+  $$(".panels").forEach(p=>p.classList.remove("active"));
+  if(name!=="home")$("#"+name+"Panel").classList.add("active");
+  $$(".navbtn").forEach(b=>b.classList.toggle("active",b.dataset.panel===name));
+}
+$$(".navbtn").forEach(b=>b.onclick=()=>openPanel(b.dataset.panel));
+$("#serverBtn").onclick=()=>openPanel("servers");
+$("#menuBtn").onclick=()=>openPanel("settings");
+$("#proBtn").onclick=()=>showToast("PRO screen can be added later");
+$$(".chooseServer").forEach(b=>b.onclick=()=>{
+  $("#serverName").textContent=b.dataset.name;$("#serverSub").textContent=b.dataset.sub;
+  openPanel("home");showToast("Server selected: "+b.dataset.name);
+});
+</script>
+</body>
+</html>
