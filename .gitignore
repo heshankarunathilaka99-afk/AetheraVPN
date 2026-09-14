@@ -3,3 +3,9 @@ build/
 app/build/
 local.properties
 *.iml
+
+# VPN private configs - NEVER commit
+*.conf
+*.conf.txt
+*.wg
+vpn-config/

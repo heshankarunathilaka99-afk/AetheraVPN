@@ -3,6 +3,12 @@ plugins {
 }
 
 android {
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+        coreLibraryDesugaringEnabled true
+    }
+
     namespace 'com.aethera.vpn'
     compileSdk 35
 
@@ -10,8 +16,13 @@ android {
         applicationId "com.aethera.vpn"
         minSdk 23
         targetSdk 35
-        versionCode 3
-        versionName "1.2"
+        versionCode 4
+        versionName "1.4"
     }
 }
 
+
+dependencies {
+    implementation "com.wireguard.android:tunnel:1.0.20260315"
+    coreLibraryDesugaring "com.android.tools:desugar_jdk_libs:2.0.3"
+}
