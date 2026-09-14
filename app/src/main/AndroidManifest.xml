@@ -11,7 +11,7 @@
         android:usesCleartextTraffic="true">
 
         <activity
-            android:name=".MainActivity"
+            android:name="com.aethera.vpn.MainActivity"
             android:screenOrientation="portrait"
             android:exported="true">
             <intent-filter>
