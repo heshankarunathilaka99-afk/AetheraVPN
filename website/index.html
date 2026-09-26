@@ -62,6 +62,23 @@ body{
   border-bottom:1px solid var(--line);
 }
 
+.top-brand{
+  min-width:0;
+}
+
+.credit-mini{
+  margin-top:3px;
+  color:var(--muted);
+  font-size:10px;
+  white-space:nowrap;
+}
+
+.top-actions{
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+
 .logo{
   font-size:21px;
   font-weight:900;
@@ -71,7 +88,7 @@ body{
   color:var(--cyan);
 }
 
-.theme{
+.theme,.settings{
   width:42px;
   height:42px;
   border-radius:50%;
@@ -91,6 +108,95 @@ body{
   color:#ffe17c;
   font-size:13px;
   line-height:1.5;
+}
+
+.settings-panel{
+  display:none;
+  margin:14px 16px 0;
+  padding:16px;
+  border-radius:16px;
+  border:1px solid var(--line);
+  background:var(--card);
+  box-shadow:0 12px 28px rgba(0,0,0,.18);
+}
+
+.settings-panel.open{
+  display:block;
+}
+
+.settings-title{
+  font-size:18px;
+  font-weight:900;
+  margin-bottom:12px;
+}
+
+.setting-row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  padding:10px 0;
+  border-bottom:1px solid var(--line);
+  font-size:13px;
+}
+
+.setting-row strong{
+  color:var(--cyan);
+  text-align:right;
+}
+
+.panel-btn{
+  width:100%;
+  min-height:46px;
+  margin-top:13px;
+  border-radius:12px;
+  border:1px solid rgba(37,215,255,.35);
+  background:rgba(37,215,255,.08);
+  color:var(--cyan);
+  font-weight:900;
+}
+
+.settings-note{
+  margin-top:12px;
+  color:var(--muted);
+  font-size:12px;
+  line-height:1.55;
+}
+
+.credit-box{
+  margin-top:12px;
+  padding-top:12px;
+  border-top:1px solid var(--line);
+  color:var(--muted);
+  font-size:12px;
+  line-height:1.6;
+}
+
+.profile-select{
+  width:100%;
+  min-height:50px;
+  padding:0 13px;
+  border-radius:13px;
+  border:1px solid var(--line);
+  background:var(--card);
+  color:var(--text);
+  font-size:14px;
+}
+
+.selection-note{
+  margin-top:9px;
+  color:var(--muted);
+  font-size:12px;
+  line-height:1.5;
+}
+
+.server.selectable{
+  cursor:pointer;
+}
+
+.server.selected{
+  border-color:var(--cyan);
+  box-shadow:0 0 0 1px rgba(37,215,255,.2);
 }
 
 .main{
@@ -316,6 +422,10 @@ body{
   color:var(--muted);
 }
 
+.profile-section{
+  margin-top:26px;
+}
+
 .info{
   margin-top:24px;
   padding:15px;
@@ -359,8 +469,33 @@ body{
 <body>
 
 <div class="topbar">
-  <div class="logo">Aethera <span>VPN</span></div>
-  <button class="theme" id="themeBtn" onclick="toggleTheme()">☀️</button>
+  <div class="top-brand">
+    <div class="logo">Aethera <span>VPN</span></div>
+    <div class="credit-mini">Made By Ravidu Heshan</div>
+  </div>
+  <div class="top-actions">
+    <button class="settings" id="settingsBtn" onclick="toggleSettings()" aria-label="Settings" aria-expanded="false">⚙️</button>
+    <button class="theme" id="themeBtn" onclick="toggleTheme()" aria-label="Theme">☀️</button>
+  </div>
+</div>
+
+<div id="settingsPanel" class="settings-panel" aria-hidden="true">
+  <div class="settings-title">Aethera VPN Settings</div>
+  <div class="setting-row">
+    <span>Profile</span>
+    <strong id="profileState">Not selected</strong>
+  </div>
+  <button class="panel-btn" onclick="importProfile(); toggleSettings(false);">
+    SELECT AUTHORIZED PROFILE
+  </button>
+  <div class="settings-note">
+    Use an authorized WireGuard profile from your VPN provider.
+    Aethera does not create mobile-data packages or use SNI/Host/packet tricks.
+  </div>
+  <div class="credit-box">
+    <strong>Made By Ravidu Heshan</strong><br>
+    Legitimate encrypted VPN client for authorized profiles.
+  </div>
 </div>
 
 <div id="browserNote" class="browser-note">
@@ -406,6 +541,24 @@ body{
 
   </div>
 
+  <div class="section profile-section">
+    <div class="section-title">VPN Package / Profile</div>
+    <div class="section-sub">
+      Select a location label for your authorized WireGuard profile.
+      This does not create a mobile-data package or an SNI tunnel.
+    </div>
+    <select id="profileSelect" class="profile-select" onchange="selectServer(this.value)">
+      <option value="">Select authorized WireGuard profile</option>
+      <option value="United States">United States</option>
+      <option value="Netherlands">Netherlands</option>
+      <option value="Japan">Japan</option>
+      <option value="Singapore">Singapore</option>
+    </select>
+    <div id="selectionNote" class="selection-note">
+      Import the matching authorized profile before connecting.
+    </div>
+  </div>
+
   <div class="section">
 
     <div class="section-title">Servers</div>
@@ -414,7 +567,7 @@ body{
       Available locations depend on your authorized VPN profile.
     </div>
 
-    <div class="server">
+    <div class="server selectable" data-server="United States" role="button" tabindex="0" onclick="selectServer('United States')">
       <div class="server-left">
         <div class="flag">🇺🇸</div>
         <div>
@@ -425,7 +578,7 @@ body{
       <div class="ready required">◌ PROFILE REQUIRED</div>
     </div>
 
-    <div class="server">
+    <div class="server selectable" data-server="Netherlands" role="button" tabindex="0" onclick="selectServer('Netherlands')">
       <div class="server-left">
         <div class="flag">🇳🇱</div>
         <div>
@@ -436,7 +589,7 @@ body{
       <div class="ready required">◌ PROFILE REQUIRED</div>
     </div>
 
-    <div class="server">
+    <div class="server selectable" data-server="Japan" role="button" tabindex="0" onclick="selectServer('Japan')">
       <div class="server-left">
         <div class="flag">🇯🇵</div>
         <div>
@@ -447,7 +600,7 @@ body{
       <div class="ready required">◌ PROFILE REQUIRED</div>
     </div>
 
-    <div class="server">
+    <div class="server selectable" data-server="Singapore" role="button" tabindex="0" onclick="selectServer('Singapore')">
       <div class="server-left">
         <div class="flag">🇸🇬</div>
         <div>
@@ -474,13 +627,86 @@ body{
 </div>
 
 <script>
+function toggleSettings(force){
+  var panel=document.getElementById("settingsPanel");
+  var button=document.getElementById("settingsBtn");
+  if(!panel) return;
+
+  var open=
+    typeof force==="boolean"
+      ? force
+      : !panel.classList.contains("open");
+
+  panel.classList.toggle("open",open);
+  panel.setAttribute("aria-hidden",open ? "false" : "true");
+
+  if(button){
+    button.setAttribute("aria-expanded",open ? "true" : "false");
+  }
+}
+
+function setProfileState(text){
+  var state=document.getElementById("profileState");
+  if(state) state.textContent=text;
+}
+
+function selectServer(name){
+  var select=document.getElementById("profileSelect");
+  var note=document.getElementById("selectionNote");
+
+  if(select) select.value=name || "";
+
+  document.querySelectorAll(".server[data-server]").forEach(function(card){
+    card.classList.toggle(
+      "selected",
+      !!name && card.getAttribute("data-server")===name
+    );
+  });
+
+  if(name){
+    localStorage.setItem("aethera-selected-server",name);
+    if(note){
+      note.textContent=
+        name + " selected. Import the matching authorized profile before connecting.";
+    }
+  }else{
+    localStorage.removeItem("aethera-selected-server");
+    if(note){
+      note.textContent=
+        "Import the matching authorized profile before connecting.";
+    }
+  }
+}
+
+function refreshNativeProfileState(){
+  if(!appAvailable()){
+    setProfileState("Open in Aethera app");
+    return;
+  }
+
+  try{
+    setProfileState(
+      AndroidVPN.hasConfig()
+        ? "Imported / ready"
+        : "Not selected"
+    );
+  }catch(e){
+    setProfileState("Unavailable");
+  }
+}
+
 function appAvailable(){
   return typeof window.AndroidVPN !== "undefined";
 }
 
 function showBrowserNotice(){
+  var note=document.getElementById("browserNote");
+  if(!note) return;
+
   if(!appAvailable()){
-    document.getElementById("browserNote").style.display="block";
+    note.style.display="block";
+  }else{
+    note.style.display="none";
   }
 }
 
@@ -601,6 +827,7 @@ function onVpnState(state){
   }
 
   else if(state==="CONFIG_IMPORTED"){
+    setProfileState("Imported / ready");
     setStatus(
       "Profile Ready",
       "VPN profile imported successfully"
@@ -608,6 +835,7 @@ function onVpnState(state){
   }
 
   else if(state==="CONFIG_REQUIRED"){
+    setProfileState("Not selected");
     setStatus(
       "Profile Required",
       "Import a VPN profile first"
@@ -639,6 +867,11 @@ function onVpnState(state){
 window.onVpnState=onVpnState;
 window.aetheraVpnStatus=onVpnState;
 
+window.aetheraNativeReady=function(){
+  showBrowserNotice();
+  refreshNativeProfileState();
+};
+
 window.addEventListener(
   "aethera-vpn-status",
   function(e){
@@ -669,7 +902,12 @@ if(localStorage.getItem("aethera-theme")==="light"){
   document.getElementById("themeBtn").textContent="🌙";
 }
 
+selectServer(
+  localStorage.getItem("aethera-selected-server") || ""
+);
+
 showBrowserNotice();
+refreshNativeProfileState();
 
 if(appAvailable()){
 
