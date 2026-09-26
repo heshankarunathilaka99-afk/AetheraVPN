@@ -707,6 +707,7 @@ function showBrowserNotice(){
     note.style.display="block";
   }else{
     note.style.display="none";
+    note.textContent="VPN controls work inside the Aethera VPN Android app.";
   }
 }
 
@@ -761,7 +762,7 @@ function importProfile(){
     window.location.href = "aetheravpn://import";
 
     setTimeout(function(){
-      if(Date.now() - start < 2500){
+      if(Date.now() - start < 2500 && !appAvailable()){
         var note = document.getElementById("browserNote");
         if(note){
           note.style.display = "block";
@@ -945,7 +946,7 @@ window.connectVPN = function () {
   window.location.href = "aetheravpn://connect";
 
   setTimeout(function () {
-    if (Date.now() - start < 2500) {
+    if (Date.now() - start < 2500 && !appAvailable()) {
       var note = document.getElementById("browserNote");
       if (note) {
         note.style.display = "block";
