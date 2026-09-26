@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'none'; frame-src 'none'; object-src 'none'; base-uri 'none'">
 <meta name="theme-color" content="#07111f">
 <title>Aethera VPN</title>
 
@@ -311,6 +312,10 @@ body{
   font-weight:800;
 }
 
+.ready.required{
+  color:var(--muted);
+}
+
 .info{
   margin-top:24px;
   padding:15px;
@@ -417,7 +422,7 @@ body{
           <div class="server-type">WireGuard Profile</div>
         </div>
       </div>
-      <div class="ready">● READY</div>
+      <div class="ready required">◌ PROFILE REQUIRED</div>
     </div>
 
     <div class="server">
@@ -428,7 +433,7 @@ body{
           <div class="server-type">WireGuard Profile</div>
         </div>
       </div>
-      <div class="ready">● READY</div>
+      <div class="ready required">◌ PROFILE REQUIRED</div>
     </div>
 
     <div class="server">
@@ -439,7 +444,7 @@ body{
           <div class="server-type">WireGuard Profile</div>
         </div>
       </div>
-      <div class="ready">● READY</div>
+      <div class="ready required">◌ PROFILE REQUIRED</div>
     </div>
 
     <div class="server">
@@ -450,14 +455,14 @@ body{
           <div class="server-type">WireGuard Profile</div>
         </div>
       </div>
-      <div class="ready">● READY</div>
+      <div class="ready required">◌ PROFILE REQUIRED</div>
     </div>
 
   </div>
 
   <div class="info">
-    The website is the Aethera VPN control interface.
-    The Android app creates the encrypted WireGuard tunnel.
+    This control site does not host an Aethera-owned VPN endpoint.
+    The Android app creates the encrypted WireGuard tunnel using an authorized WireGuard profile.
     Private WireGuard credentials are not stored on this website.
   </div>
 
@@ -526,7 +531,19 @@ function disconnectVPN(){
 function importProfile(){
 
   if(!appAvailable()){
-    showBrowserNotice();
+    var start = Date.now();
+    window.location.href = "aetheravpn://import";
+
+    setTimeout(function(){
+      if(Date.now() - start < 2500){
+        var note = document.getElementById("browserNote");
+        if(note){
+          note.style.display = "block";
+          note.textContent =
+            "Opening Aethera VPN app to import an authorized WireGuard profile.";
+        }
+      }
+    }, 1400);
     return;
   }
 
@@ -539,7 +556,6 @@ function importProfile(){
     );
   }
 }
-
 function setStatus(title,sub){
 
   document.getElementById("vpnStatus").textContent=title;
