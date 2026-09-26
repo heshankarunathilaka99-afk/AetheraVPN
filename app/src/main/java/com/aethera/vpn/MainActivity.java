@@ -3,6 +3,7 @@ package com.aethera.vpn;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.net.VpnService;
 import android.os.Bundle;
@@ -32,11 +33,17 @@ public class MainActivity extends Activity {
     private static final String TRUSTED_HOST =
             "heshankarunathilaka99-afk.github.io";
 
+    private static final String TRUSTED_PATH =
+            "/AetheraVPN";
+
     private static final int REQ_VPN_PERMISSION = 1001;
     private static final int REQ_IMPORT_CONFIG = 1002;
 
     private WebView webView;
     private GoBackend backend;
+
+    private volatile boolean trustedPage = false;
+    private boolean bridgeAttached = false;
 
     private final ExecutorService executor =
             Executors.newSingleThreadExecutor();
@@ -67,16 +74,13 @@ public class MainActivity extends Activity {
         s.setDomStorageEnabled(true);
         s.setAllowFileAccess(false);
         s.setAllowContentAccess(false);
+        s.setAllowFileAccessFromFileURLs(false);
+        s.setAllowUniversalAccessFromFileURLs(false);
         s.setMixedContentMode(
                 WebSettings.MIXED_CONTENT_NEVER_ALLOW
         );
 
-        webView.addJavascriptInterface(
-                new AndroidVPNBridge(),
-                "AndroidVPN"
-        );
-
-        webView.setWebChromeClient(
+initial bridge        webView.setWebChromeClient(
                 new WebChromeClient()
         );
 
@@ -84,21 +88,60 @@ public class MainActivity extends Activity {
                 new WebViewClient() {
 
                     @Override
+                    public void onPageStarted(
+                            WebView view,
+                            String url,
+                            Bitmap favicon
+                    ) {
+                        super.onPageStarted(view, url, favicon);
+
+                        Uri u = Uri.parse(url == null ? "" : url);
+
+                        if (isTrustedUri(u)) {
+                            trustedPage = true;
+                            attachBridgeIfNeeded();
+                        } else {
+                            trustedPage = false;
+                            detachBridge();
+                            view.stopLoading();
+                            view.loadUrl(SITE);
+                        }
+                    }
+
+                    @Override
+                    public void onPageFinished(
+                            WebView view,
+                            String url
+                    ) {
+                        super.onPageFinished(view, url);
+
+                        trustedPage = isTrustedUri(
+                                Uri.parse(url == null ? "" : url)
+                        );
+
+                        if (trustedPage) {
+                            attachBridgeIfNeeded();
+                        } else {
+                            detachBridge();
+                        }
+                    }
+
+                    @Override
                     public boolean shouldOverrideUrlLoading(
                             WebView view,
                             WebResourceRequest request
                     ) {
-                        Uri u = request.getUrl();
+                        return !isTrustedUri(request.getUrl());
+                    }
 
-                        if (
-                                "https".equalsIgnoreCase(u.getScheme())
-                                &&
-                                TRUSTED_HOST.equalsIgnoreCase(u.getHost())
-                        ) {
-                            return false;
-                        }
-
-                        return true;
+                    @Override
+                    public boolean shouldOverrideUrlLoading(
+                            WebView view,
+                            String url
+                    ) {
+                        return !isTrustedUri(
+                                Uri.parse(url == null ? "" : url)
+                        );
                     }
 
                     @Override
@@ -146,6 +189,39 @@ public class MainActivity extends Activity {
         handleDeepLink(getIntent());
     }
 
+    private boolean isTrustedUri(Uri uri) {
+        if (uri == null) {
+            return false;
+        }
+
+        String path = uri.getPath();
+        int port = uri.getPort();
+
+        return "https".equalsIgnoreCase(uri.getScheme())
+                && TRUSTED_HOST.equalsIgnoreCase(uri.getHost())
+                && (port == -1 || port == 443)
+                && path != null
+                && (path.equals(TRUSTED_PATH)
+                || path.startsWith(TRUSTED_PATH + "/"));
+    }
+
+    private void attachBridgeIfNeeded() {
+        if (webView != null && trustedPage && !bridgeAttached) {
+            webView.addJavascriptInterface(
+                    new AndroidVPNBridge(),
+                    "AndroidVPN"
+            );
+            bridgeAttached = true;
+        }
+    }
+
+    private void detachBridge() {
+        if (webView != null && bridgeAttached) {
+            webView.removeJavascriptInterface("AndroidVPN");
+            bridgeAttached = false;
+        }
+    }
+
     private class AetheraTunnel
             implements Tunnel {
 
@@ -168,17 +244,15 @@ public class MainActivity extends Activity {
 
         @JavascriptInterface
         public void connect() {
-
             runOnUiThread(() -> {
+                if (!trustedPage) {
+                    return;
+                }
 
                 if (!configFile.exists()) {
-
                     pendingConnectAfterImport = true;
-
                     sendStatus("SELECT_CONFIG");
-
                     openConfigPicker();
-
                     return;
                 }
 
@@ -188,33 +262,38 @@ public class MainActivity extends Activity {
 
         @JavascriptInterface
         public void disconnect() {
-            disconnectTunnel();
+            if (trustedPage) {
+                disconnectTunnel();
+            }
         }
 
         @JavascriptInterface
         public void importConfig() {
-
             runOnUiThread(() -> {
+                if (!trustedPage) {
+                    return;
+                }
 
                 pendingConnectAfterImport = false;
-
                 openConfigPicker();
             });
         }
 
         @JavascriptInterface
         public boolean hasConfig() {
-            return configFile.exists();
+            return trustedPage && configFile.exists();
         }
 
         @JavascriptInterface
         public String getState() {
+            if (!trustedPage) {
+                return "DOWN";
+            }
 
             try {
                 return backend
                         .getState(tunnel)
                         .name();
-
             } catch (Exception e) {
                 return "DOWN";
             }
@@ -549,6 +628,11 @@ public class MainActivity extends Activity {
                 .replace("\n", " ")
                 .replace("\r", " ");
 
+        m = m.replaceAll(
+                "(?i)(privatekey|presharedkey|password|secret)\\s*[:=]\\s*[^\\s,;]+",
+                "$1=<redacted>"
+        );
+
         if (m.length() > 160)
             m = m.substring(0,160);
 
@@ -641,6 +725,13 @@ public class MainActivity extends Activity {
         } else if ("disconnect".equalsIgnoreCase(host)) {
 
             disconnectTunnel();
+
+        } else if ("import".equalsIgnoreCase(host)) {
+
+            runOnUiThread(() -> {
+                sendStatus("SELECT_CONFIG");
+                openConfigPicker();
+            });
         }
     }
 
@@ -663,12 +754,9 @@ public class MainActivity extends Activity {
 
         if (webView != null) {
 
-            webView.removeJavascriptInterface(
-                    "AndroidVPN"
-            );
-
+            trustedPage = false;
+            detachBridge();
             webView.destroy();
-
             webView = null;
         }
 
