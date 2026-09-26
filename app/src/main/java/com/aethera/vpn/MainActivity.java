@@ -121,6 +121,13 @@ public class MainActivity extends Activity {
 
                         if (trustedPage) {
                             attachBridgeIfNeeded();
+
+                            view.evaluateJavascript(
+                                    "(function(){if(typeof " +
+                                    "window.aetheraNativeReady===" +
+                                    "'function'){window.aetheraNativeReady();}})();",
+                                    null
+                            );
                         } else {
                             detachBridge();
                         }
@@ -131,7 +138,16 @@ public class MainActivity extends Activity {
                             WebView view,
                             WebResourceRequest request
                     ) {
-                        return !isTrustedUri(request.getUrl());
+                        Uri uri = request.getUrl();
+
+                        if (isAetheraDeepLink(uri)) {
+                            handleDeepLink(
+                                    new Intent(Intent.ACTION_VIEW, uri)
+                            );
+                            return true;
+                        }
+
+                        return !isTrustedUri(uri);
                     }
 
                     @Override
@@ -139,9 +155,18 @@ public class MainActivity extends Activity {
                             WebView view,
                             String url
                     ) {
-                        return !isTrustedUri(
-                                Uri.parse(url == null ? "" : url)
+                        Uri uri = Uri.parse(
+                                url == null ? "" : url
                         );
+
+                        if (isAetheraDeepLink(uri)) {
+                            handleDeepLink(
+                                    new Intent(Intent.ACTION_VIEW, uri)
+                            );
+                            return true;
+                        }
+
+                        return !isTrustedUri(uri);
                     }
 
                     @Override
@@ -184,9 +209,26 @@ public class MainActivity extends Activity {
 
         setContentView(webView);
 
+        // The initial page is the trusted Aethera HTTPS origin.
+        // Attach the bridge before page scripts execute.
+        trustedPage = true;
+        attachBridgeIfNeeded();
         webView.loadUrl(SITE);
 
         handleDeepLink(getIntent());
+    }
+
+    private boolean isAetheraDeepLink(Uri uri) {
+        if (uri == null ||
+                !"aetheravpn".equalsIgnoreCase(uri.getScheme())) {
+            return false;
+        }
+
+        String host = uri.getHost();
+
+        return "connect".equalsIgnoreCase(host)
+                || "disconnect".equalsIgnoreCase(host)
+                || "import".equalsIgnoreCase(host);
     }
 
     private boolean isTrustedUri(Uri uri) {
