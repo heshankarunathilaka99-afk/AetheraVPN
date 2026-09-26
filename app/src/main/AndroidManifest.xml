@@ -9,11 +9,13 @@
         android:roundIcon="@drawable/aethera_icon"
         android:theme="@style/AppTheme"
         android:label="Aethera VPN"
-        android:usesCleartextTraffic="true">
+        android:allowBackup="false"
+        android:usesCleartextTraffic="false">
 
         <activity
             android:name="com.aethera.vpn.MainActivity"
             android:screenOrientation="portrait"
+            android:launchMode="singleTop"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -33,6 +35,10 @@
                 <data
                     android:scheme="aetheravpn"
                     android:host="disconnect" />
+
+                <data
+                    android:scheme="aetheravpn"
+                    android:host="import" />
             </intent-filter>
 
         </activity>
