@@ -44,6 +44,7 @@ public class MainActivity extends Activity {
 
     private volatile boolean trustedPage = false;
     private boolean bridgeAttached = false;
+    private boolean bridgeRetryUsed = false;
 
     private final ExecutorService executor =
             Executors.newSingleThreadExecutor();
@@ -121,13 +122,7 @@ public class MainActivity extends Activity {
 
                         if (trustedPage) {
                             attachBridgeIfNeeded();
-
-                            view.evaluateJavascript(
-                                    "(function(){if(typeof " +
-                                    "window.aetheraNativeReady===" +
-                                    "'function'){window.aetheraNativeReady();}})();",
-                                    null
-                            );
+                            notifyNativeReady(view);
                         } else {
                             detachBridge();
                         }
@@ -262,6 +257,41 @@ public class MainActivity extends Activity {
             webView.removeJavascriptInterface("AndroidVPN");
             bridgeAttached = false;
         }
+    }
+
+    private void notifyNativeReady(final WebView view) {
+        view.postDelayed(() -> {
+            if (webView != view || !trustedPage) {
+                return;
+            }
+
+            view.evaluateJavascript(
+                    "(typeof window.AndroidVPN !== 'undefined' && " +
+                    "typeof window.AndroidVPN.connect === 'function')" +
+                    " ? 'ready' : 'missing';",
+                    value -> {
+                        if ("\"ready\"".equals(value)) {
+                            bridgeRetryUsed = false;
+                            view.evaluateJavascript(
+                                    "(function(){if(typeof " +
+                                    "window.aetheraNativeReady===" +
+                                    "'function'){window.aetheraNativeReady();}})();",
+                                    null
+                            );
+                        } else if (!bridgeRetryUsed) {
+                            bridgeRetryUsed = true;
+                            view.reload();
+                        } else {
+                            view.evaluateJavascript(
+                                    "(function(){if(typeof " +
+                                    "window.aetheraNativeReady===" +
+                                    "'function'){window.aetheraNativeReady();}})();",
+                                    null
+                            );
+                        }
+                    }
+            );
+        }, 300);
     }
 
     private class AetheraTunnel
