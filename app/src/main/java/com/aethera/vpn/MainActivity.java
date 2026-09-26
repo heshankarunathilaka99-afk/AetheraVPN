@@ -80,7 +80,7 @@ public class MainActivity extends Activity {
                 WebSettings.MIXED_CONTENT_NEVER_ALLOW
         );
 
-initial bridge        webView.setWebChromeClient(
+        webView.setWebChromeClient(
                 new WebChromeClient()
         );
 
