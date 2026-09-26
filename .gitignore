@@ -9,3 +9,13 @@ local.properties
 *.conf.txt
 *.wg
 vpn-config/
+
+# Signing material and private key files - NEVER commit
+*.jks
+*.keystore
+*.p12
+*.key
+*.pem
+*.priv
+*.private
+keystore.properties
