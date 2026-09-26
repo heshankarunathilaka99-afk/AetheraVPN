@@ -678,9 +678,24 @@ function selectServer(name){
   }
 }
 
+function appShellAvailable(){
+  if(appAvailable()){
+    return true;
+  }
+
+  var ua=navigator.userAgent || "";
+  return ua.indexOf("; wv)") >= 0 ||
+    (ua.indexOf("Version/4.0") >= 0 &&
+     ua.indexOf("Android") >= 0);
+}
+
 function refreshNativeProfileState(){
   if(!appAvailable()){
-    setProfileState("Open in Aethera app");
+    setProfileState(
+      appShellAvailable()
+        ? "Use in-app controls"
+        : "Open in Aethera app"
+    );
     return;
   }
 
@@ -703,7 +718,7 @@ function showBrowserNotice(){
   var note=document.getElementById("browserNote");
   if(!note) return;
 
-  if(!appAvailable()){
+  if(!appShellAvailable()){
     note.style.display="block";
   }else{
     note.style.display="none";
@@ -762,7 +777,7 @@ function importProfile(){
     window.location.href = "aetheravpn://import";
 
     setTimeout(function(){
-      if(Date.now() - start < 2500 && !appAvailable()){
+      if(Date.now() - start < 2500 && !appAvailable() && !appShellAvailable()){
         var note = document.getElementById("browserNote");
         if(note){
           note.style.display = "block";
@@ -946,7 +961,7 @@ window.connectVPN = function () {
   window.location.href = "aetheravpn://connect";
 
   setTimeout(function () {
-    if (Date.now() - start < 2500 && !appAvailable()) {
+    if (Date.now() - start < 2500 && !appAvailable() && !appShellAvailable()) {
       var note = document.getElementById("browserNote");
       if (note) {
         note.style.display = "block";
