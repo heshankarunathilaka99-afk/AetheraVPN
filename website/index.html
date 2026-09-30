@@ -1,990 +1,2690 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="night">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'none'; frame-src 'none'; object-src 'none'; base-uri 'none'">
-<meta name="theme-color" content="#07111f">
-<title>Aethera VPN</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; frame-src 'none'; object-src 'none'; base-uri 'none'; form-action 'self'">
+  <meta name="theme-color" id="themeColor" content="#050812">
+  <meta name="aethera-api-base" content="">
+  <title>Aethera VPN — Secure Gateway Control</title>
 
-<style>
-html,body{
-  margin:0;
-  padding:0;
-  width:100%;
-  min-height:100%;
-}
+  <style>
+    :root{
+      --bg:#07101d;
+      --bg-deep:#050912;
+      --surface:#0c1726;
+      --surface-2:#101f31;
+      --surface-3:#14263a;
+      --text:#f5fbff;
+      --muted:#8ea4b9;
+      --muted-2:#647c94;
+      --line:#1d3349;
+      --line-strong:#2c4964;
+      --cyan:#35d8ff;
+      --cyan-soft:rgba(53,216,255,.12);
+      --violet:#8b7cff;
+      --green:#4be3a0;
+      --amber:#ffd166;
+      --red:#ff7084;
+      --shadow:0 20px 60px rgba(0,0,0,.27);
+      --radius:20px;
+    }
 
-*{
-  box-sizing:border-box;
-}
+    html[data-theme="dark"]{
+      --bg:#10151c;
+      --bg-deep:#0b0f14;
+      --surface:#171e27;
+      --surface-2:#202a36;
+      --surface-3:#2a3746;
+      --text:#f5f7fb;
+      --muted:#a0acba;
+      --muted-2:#748293;
+      --line:#303d4d;
+      --line-strong:#44566b;
+      --cyan:#5bdfff;
+      --cyan-soft:rgba(91,223,255,.12);
+      --violet:#9b8eff;
+    }
 
-:root{
-  --bg:#050c16;
-  --card:#0c1826;
-  --card2:#111f30;
-  --text:#ffffff;
-  --muted:#8fa4b9;
-  --line:#1c3042;
-  --cyan:#25d7ff;
-  --blue:#5470ff;
-  --green:#4cf4a0;
-  --danger:#ff6577;
-}
+    html[data-theme="light"]{
+      --bg:#eef4f8;
+      --bg-deep:#e3edf4;
+      --surface:#ffffff;
+      --surface-2:#f4f8fb;
+      --surface-3:#eaf2f7;
+      --text:#0e1c2b;
+      --muted:#5f7489;
+      --muted-2:#7e91a3;
+      --line:#d8e4ed;
+      --line-strong:#c1d2df;
+      --cyan:#079bc2;
+      --cyan-soft:rgba(7,155,194,.10);
+      --violet:#6557d8;
+      --green:#158b60;
+      --amber:#a66b00;
+      --red:#c43b52;
+      --shadow:0 18px 50px rgba(25,55,80,.12);
+    }
 
-body.light{
-  --bg:#eef5fa;
-  --card:#ffffff;
-  --card2:#f4f8fb;
-  --text:#0d1c2c;
-  --muted:#60758b;
-  --line:#d8e2ea;
-}
+    *{box-sizing:border-box}
 
-body{
-  font-family:Arial,Helvetica,sans-serif;
-  color:var(--text);
-  background:var(--bg);
-  padding-bottom:35px;
-}
+    html,body{
+      margin:0;
+      min-width:320px;
+      min-height:100%;
+      background:var(--bg);
+    }
 
-.topbar{
-  position:sticky;
-  top:0;
-  z-index:30;
-  width:100%;
-  height:64px;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  padding:0 18px;
-  background:var(--bg);
-  border-bottom:1px solid var(--line);
-}
+    body{
+      color:var(--text);
+      font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+      line-height:1.45;
+      overflow-x:hidden;
+      padding-bottom:36px;
+    }
 
-.top-brand{
-  min-width:0;
-}
+    body:before{
+      content:"";
+      position:fixed;
+      inset:0;
+      z-index:-2;
+      pointer-events:none;
+      background:
+        radial-gradient(circle at 80% 0%,rgba(53,216,255,.10),transparent 34%),
+        radial-gradient(circle at 10% 65%,rgba(139,124,255,.07),transparent 30%),
+        linear-gradient(145deg,var(--bg-deep),var(--bg));
+    }
 
-.credit-mini{
-  margin-top:3px;
-  color:var(--muted);
-  font-size:10px;
-  white-space:nowrap;
-}
+    body:after{
+      content:"";
+      position:fixed;
+      inset:0;
+      z-index:-1;
+      pointer-events:none;
+      opacity:.22;
+      background-image:linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px);
+      background-size:34px 34px;
+      mask-image:linear-gradient(to bottom,black,transparent 82%);
+    }
 
-.top-actions{
-  display:flex;
-  align-items:center;
-  gap:8px;
-}
+    button,input,select{
+      font:inherit;
+    }
 
-.logo{
-  font-size:21px;
-  font-weight:900;
-}
+    button{
+      min-width:44px;
+      min-height:44px;
+      border:0;
+      cursor:pointer;
+      color:inherit;
+    }
 
-.logo span{
-  color:var(--cyan);
-}
+    button:focus-visible,
+    input:focus-visible,
+    select:focus-visible{
+      outline:3px solid rgba(53,216,255,.55);
+      outline-offset:2px;
+    }
 
-.theme,.settings{
-  width:42px;
-  height:42px;
-  border-radius:50%;
-  border:1px solid var(--line);
-  background:var(--card);
-  color:var(--text);
-  font-size:19px;
-}
+    button:disabled,
+    input:disabled,
+    select:disabled{
+      cursor:not-allowed;
+      opacity:.54;
+    }
 
-.browser-note{
-  display:none;
-  margin:14px 16px 0;
-  padding:13px 15px;
-  border-radius:13px;
-  background:#302812;
-  border:1px solid #66521d;
-  color:#ffe17c;
-  font-size:13px;
-  line-height:1.5;
-}
+    .topbar{
+      position:sticky;
+      top:0;
+      z-index:50;
+      height:72px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:16px;
+      padding:0 28px;
+      background:color-mix(in srgb,var(--bg) 88%,transparent);
+      border-bottom:1px solid var(--line);
+      backdrop-filter:blur(18px);
+    }
 
-.settings-panel{
-  display:none;
-  margin:14px 16px 0;
-  padding:16px;
-  border-radius:16px;
-  border:1px solid var(--line);
-  background:var(--card);
-  box-shadow:0 12px 28px rgba(0,0,0,.18);
-}
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      min-width:0;
+    }
 
-.settings-panel.open{
-  display:block;
-}
+    .brand-mark{
+      position:relative;
+      width:42px;
+      height:42px;
+      flex:0 0 42px;
+      display:grid;
+      place-items:center;
+      border:1px solid rgba(53,216,255,.55);
+      border-radius:14px;
+      color:var(--cyan);
+      background:linear-gradient(145deg,rgba(53,216,255,.17),rgba(139,124,255,.14));
+      box-shadow:0 0 26px rgba(53,216,255,.14);
+      font-size:20px;
+      font-weight:950;
+    }
 
-.settings-title{
-  font-size:18px;
-  font-weight:900;
-  margin-bottom:12px;
-}
+    .brand-mark:after{
+      content:"";
+      position:absolute;
+      inset:7px;
+      border:1px solid rgba(255,255,255,.15);
+      border-radius:9px;
+    }
 
-.setting-row{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:12px;
-  padding:10px 0;
-  border-bottom:1px solid var(--line);
-  font-size:13px;
-}
+    .brand-copy{
+      min-width:0;
+    }
 
-.setting-row strong{
-  color:var(--cyan);
-  text-align:right;
-}
+    .brand-name{
+      font-size:18px;
+      font-weight:900;
+      letter-spacing:.01em;
+      white-space:nowrap;
+    }
 
-.panel-btn{
-  width:100%;
-  min-height:46px;
-  margin-top:13px;
-  border-radius:12px;
-  border:1px solid rgba(37,215,255,.35);
-  background:rgba(37,215,255,.08);
-  color:var(--cyan);
-  font-weight:900;
-}
+    .brand-name span{
+      color:var(--cyan);
+    }
 
-.settings-note{
-  margin-top:12px;
-  color:var(--muted);
-  font-size:12px;
-  line-height:1.55;
-}
+    .brand-credit{
+      margin-top:1px;
+      color:var(--muted);
+      font-size:10px;
+      white-space:nowrap;
+    }
 
-.credit-box{
-  margin-top:12px;
-  padding-top:12px;
-  border-top:1px solid var(--line);
-  color:var(--muted);
-  font-size:12px;
-  line-height:1.6;
-}
+    .top-actions{
+      display:flex;
+      align-items:center;
+      gap:9px;
+    }
 
-.profile-select{
-  width:100%;
-  min-height:50px;
-  padding:0 13px;
-  border-radius:13px;
-  border:1px solid var(--line);
-  background:var(--card);
-  color:var(--text);
-  font-size:14px;
-}
+    .plane-chip,
+    .status-pill,
+    .tag{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:7px;
+      min-height:28px;
+      padding:0 10px;
+      border:1px solid var(--line);
+      border-radius:999px;
+      color:var(--muted);
+      background:var(--surface-2);
+      font-size:10px;
+      font-weight:900;
+      letter-spacing:.09em;
+      white-space:nowrap;
+    }
 
-.selection-note{
-  margin-top:9px;
-  color:var(--muted);
-  font-size:12px;
-  line-height:1.5;
-}
+    .plane-chip .dot,
+    .status-dot{
+      width:7px;
+      height:7px;
+      border-radius:50%;
+      background:var(--amber);
+      box-shadow:0 0 10px currentColor;
+    }
 
-.server.selectable{
-  cursor:pointer;
-}
+    .icon-btn{
+      width:44px;
+      height:44px;
+      display:grid;
+      place-items:center;
+      border:1px solid var(--line);
+      border-radius:14px;
+      background:var(--surface);
+      color:var(--text);
+      font-size:18px;
+    }
 
-.server.selected{
-  border-color:var(--cyan);
-  box-shadow:0 0 0 1px rgba(37,215,255,.2);
-}
+    .notice{
+      display:none;
+      max-width:1280px;
+      margin:16px auto 0;
+      padding:13px 16px;
+      border:1px solid rgba(255,209,102,.34);
+      border-radius:15px;
+      color:var(--amber);
+      background:rgba(255,209,102,.08);
+      font-size:12px;
+      line-height:1.55;
+    }
 
-.main{
-  width:100%;
-  max-width:520px;
-  margin:0 auto;
-  padding:0 15px;
-}
+    .notice.visible{
+      display:block;
+    }
 
-.hero{
-  text-align:center;
-  padding-top:30px;
-}
+    .app-shell{
+      width:min(1280px,100%);
+      margin:0 auto;
+      padding:26px 28px 0;
+      display:grid;
+      grid-template-columns:232px minmax(0,1fr);
+      gap:26px;
+    }
 
-.hero h1{
-  margin:0;
-  font-size:34px;
-  font-weight:900;
-}
+    .sidebar{
+      position:sticky;
+      top:98px;
+      align-self:start;
+      min-width:0;
+    }
 
-.hero h1 span{
-  color:var(--cyan);
-}
+    .sidebar-kicker{
+      margin:0 10px 10px;
+      color:var(--muted-2);
+      font-size:10px;
+      font-weight:900;
+      letter-spacing:.14em;
+    }
 
-.hero p{
-  margin:8px 0 0;
-  color:var(--muted);
-  font-size:14px;
-}
+    .nav{
+      display:grid;
+      gap:7px;
+    }
 
-.globe-area{
-  width:100%;
-  height:250px;
-  position:relative;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-}
+    .nav-btn{
+      width:100%;
+      display:flex;
+      align-items:center;
+      gap:11px;
+      padding:0 13px;
+      border:1px solid transparent;
+      border-radius:14px;
+      color:var(--muted);
+      background:transparent;
+      text-align:left;
+      font-size:13px;
+      font-weight:800;
+    }
 
-.globe{
-  width:190px;
-  height:190px;
-  border-radius:50%;
-  position:relative;
-  overflow:hidden;
-  border:2px solid #1fc7ec;
-  background:
-    repeating-linear-gradient(
-      0deg,
-      transparent 0px,
-      transparent 21px,
-      rgba(37,215,255,.18) 22px,
-      rgba(37,215,255,.18) 23px
-    ),
-    repeating-linear-gradient(
-      90deg,
-      transparent 0px,
-      transparent 27px,
-      rgba(37,215,255,.16) 28px,
-      rgba(37,215,255,.16) 29px
-    ),
-    radial-gradient(circle at 35% 30%,#1c496d,#071521 70%);
-  box-shadow:
-    0 0 35px rgba(37,215,255,.18),
-    inset 0 0 35px rgba(37,215,255,.12);
-  animation:floatGlobe 3.5s ease-in-out infinite;
-}
+    .nav-btn .nav-icon{
+      width:22px;
+      color:var(--muted-2);
+      font-size:16px;
+      text-align:center;
+    }
 
-.globe:before{
-  content:"";
-  position:absolute;
-  width:300px;
-  height:70px;
-  left:-58px;
-  top:56px;
-  border:2px solid rgba(116,95,255,.7);
-  border-radius:50%;
-  transform:rotate(-15deg);
-}
+    .nav-btn.active{
+      border-color:rgba(53,216,255,.27);
+      color:var(--text);
+      background:linear-gradient(90deg,rgba(53,216,255,.13),rgba(139,124,255,.09));
+      box-shadow:inset 3px 0 0 var(--cyan);
+    }
 
-.node{
-  position:absolute;
-  width:10px;
-  height:10px;
-  border-radius:50%;
-  background:#74f5ff;
-  box-shadow:0 0 13px #74f5ff;
-}
+    .nav-btn.active .nav-icon{
+      color:var(--cyan);
+    }
 
-.n1{top:30%;left:29%;}
-.n2{top:47%;right:24%;}
-.n3{bottom:25%;left:48%;}
+    .sidebar-card{
+      margin-top:22px;
+      padding:15px;
+      border:1px solid var(--line);
+      border-radius:17px;
+      background:linear-gradient(145deg,var(--surface),var(--surface-2));
+    }
 
-@keyframes floatGlobe{
-  0%,100%{transform:translateY(0);}
-  50%{transform:translateY(-10px);}
-}
+    .sidebar-card-title{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      font-size:12px;
+      font-weight:900;
+    }
 
-.status-card{
-  width:100%;
-  padding:22px 18px;
-  border-radius:23px;
-  border:1px solid var(--line);
-  background:var(--card);
-  box-shadow:0 14px 35px rgba(0,0,0,.15);
-}
+    .sidebar-card p{
+      margin:9px 0 0;
+      color:var(--muted);
+      font-size:11px;
+      line-height:1.55;
+    }
 
-.shield{
-  width:78px;
-  height:78px;
-  margin:0 auto 14px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  border-radius:50%;
-  border:2px solid var(--cyan);
-  background:rgba(37,215,255,.06);
-  font-size:38px;
-}
+    .sidebar-foot{
+      margin:18px 10px 0;
+      color:var(--muted-2);
+      font-size:10px;
+      line-height:1.7;
+    }
 
-#vpnStatus{
-  text-align:center;
-  font-size:25px;
-  font-weight:900;
-}
+    .sidebar-foot strong{
+      color:var(--text);
+    }
 
-#vpnSub{
-  margin-top:6px;
-  text-align:center;
-  color:var(--muted);
-  font-size:14px;
-}
+    .main{
+      min-width:0;
+    }
 
-.btn{
-  width:100%;
-  min-height:54px;
-  margin-top:12px;
-  border-radius:15px;
-  font-size:16px;
-  font-weight:900;
-  cursor:pointer;
-}
+    .view{
+      display:none;
+    }
 
-.connect{
-  border:0;
-  color:#fff;
-  background:linear-gradient(90deg,var(--cyan),var(--blue));
-  box-shadow:0 10px 25px rgba(52,119,255,.22);
-}
+    .view.active{
+      display:block;
+    }
 
-.disconnect{
-  color:var(--text);
-  background:var(--card2);
-  border:1px solid var(--line);
-}
+    .view-header{
+      display:flex;
+      align-items:flex-end;
+      justify-content:space-between;
+      gap:16px;
+      margin-bottom:20px;
+    }
 
-.import{
-  color:var(--cyan);
-  background:rgba(37,215,255,.06);
-  border:1px solid rgba(37,215,255,.28);
-}
+    .eyebrow{
+      color:var(--cyan);
+      font-size:10px;
+      font-weight:950;
+      letter-spacing:.16em;
+      text-transform:uppercase;
+    }
 
-.section{
-  margin-top:30px;
-}
+    h1,h2,h3,p{
+      margin-top:0;
+    }
 
-.section-title{
-  font-size:24px;
-  font-weight:900;
-  margin-bottom:6px;
-}
+    .view-title{
+      margin:6px 0 5px;
+      font-size:clamp(25px,3vw,36px);
+      line-height:1.07;
+      letter-spacing:-.035em;
+    }
 
-.section-sub{
-  color:var(--muted);
-  font-size:13px;
-  line-height:1.5;
-  margin-bottom:16px;
-}
+    .view-subtitle{
+      max-width:660px;
+      margin:0;
+      color:var(--muted);
+      font-size:13px;
+    }
 
-.server{
-  width:100%;
-  min-height:73px;
-  margin-bottom:10px;
-  padding:14px 15px;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:12px;
-  border-radius:16px;
-  border:1px solid var(--line);
-  background:var(--card);
-}
+    .card{
+      min-width:0;
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      background:linear-gradient(145deg,var(--surface),var(--surface-2));
+      box-shadow:var(--shadow);
+    }
 
-.server-left{
-  display:flex;
-  align-items:center;
-  gap:12px;
-}
+    .connection-grid{
+      display:grid;
+      grid-template-columns:minmax(0,1.13fr) minmax(280px,.87fr);
+      gap:18px;
+    }
 
-.flag{
-  font-size:28px;
-}
+    .connection-card{
+      position:relative;
+      overflow:hidden;
+      padding:23px;
+    }
 
-.server-name{
-  font-weight:800;
-  font-size:16px;
-}
+    .connection-card:before{
+      content:"";
+      position:absolute;
+      width:260px;
+      height:260px;
+      top:-170px;
+      right:-90px;
+      border-radius:50%;
+      background:radial-gradient(circle,rgba(53,216,255,.18),transparent 68%);
+      pointer-events:none;
+    }
 
-.server-type{
-  margin-top:4px;
-  color:var(--muted);
-  font-size:12px;
-}
+    .card-head{
+      position:relative;
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:12px;
+    }
 
-.ready{
-  flex-shrink:0;
-  color:var(--green);
-  font-size:12px;
-  font-weight:800;
-}
+    .card-title{
+      margin:5px 0 4px;
+      font-size:24px;
+      letter-spacing:-.025em;
+    }
 
-.ready.required{
-  color:var(--muted);
-}
+    .card-copy{
+      margin:0;
+      color:var(--muted);
+      font-size:12px;
+    }
 
-.profile-section{
-  margin-top:26px;
-}
+    .status-pill{
+      color:var(--amber);
+      border-color:rgba(255,209,102,.30);
+      background:rgba(255,209,102,.08);
+    }
 
-.info{
-  margin-top:24px;
-  padding:15px;
-  border-radius:15px;
-  border:1px solid rgba(37,215,255,.2);
-  background:rgba(37,215,255,.05);
-  color:var(--muted);
-  font-size:12px;
-  line-height:1.6;
-}
+    .status-pill.connected{
+      color:var(--green);
+      border-color:rgba(75,227,160,.32);
+      background:rgba(75,227,160,.09);
+    }
 
-.footer{
-  margin-top:30px;
-  text-align:center;
-  color:var(--muted);
-  font-size:12px;
-  line-height:1.8;
-}
+    .status-pill.failed{
+      color:var(--red);
+      border-color:rgba(255,112,132,.33);
+      background:rgba(255,112,132,.09);
+    }
 
-.footer strong{
-  color:var(--text);
-}
+    .status-pill.checking{
+      color:var(--cyan);
+      border-color:rgba(53,216,255,.30);
+      background:var(--cyan-soft);
+    }
 
-@media (max-width:350px){
-  .globe{
-    width:165px;
-    height:165px;
-  }
+    .form-grid{
+      position:relative;
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:13px;
+      margin-top:22px;
+    }
 
-  .globe-area{
-    height:220px;
-  }
+    .field{
+      min-width:0;
+    }
 
-  .hero h1{
-    font-size:29px;
-  }
-}
-</style>
+    .field.full{
+      grid-column:1 / -1;
+    }
+
+    .field label{
+      display:block;
+      margin:0 0 7px;
+      color:var(--muted);
+      font-size:10px;
+      font-weight:900;
+      letter-spacing:.09em;
+      text-transform:uppercase;
+    }
+
+    .field select,
+    .field input{
+      width:100%;
+      min-height:46px;
+      padding:0 12px;
+      border:1px solid var(--line);
+      border-radius:12px;
+      color:var(--text);
+      background:var(--bg-deep);
+    }
+
+    .field select{
+      appearance:auto;
+    }
+
+    .field input::placeholder{
+      color:var(--muted-2);
+    }
+
+    .field-help{
+      min-height:16px;
+      margin:6px 0 0;
+      color:var(--muted-2);
+      font-size:10px;
+    }
+
+    .action-row{
+      display:grid;
+      grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+      gap:10px;
+      margin-top:18px;
+    }
+
+    .primary-btn,
+    .secondary-btn,
+    .danger-btn{
+      min-height:48px;
+      padding:0 15px;
+      border-radius:13px;
+      font-size:12px;
+      font-weight:950;
+      letter-spacing:.05em;
+    }
+
+    .primary-btn{
+      color:#03111a;
+      background:linear-gradient(100deg,var(--cyan),#7182ff);
+      box-shadow:0 10px 22px rgba(53,216,255,.16);
+    }
+
+    .secondary-btn{
+      color:var(--text);
+      border:1px solid var(--line-strong);
+      background:var(--surface-3);
+    }
+
+    .secondary-btn.accent{
+      color:var(--cyan);
+      border-color:rgba(53,216,255,.35);
+      background:var(--cyan-soft);
+    }
+
+    .danger-btn{
+      color:var(--red);
+      border:1px solid rgba(255,112,132,.30);
+      background:rgba(255,112,132,.08);
+    }
+
+    .companion-note{
+      display:flex;
+      align-items:flex-start;
+      gap:9px;
+      margin-top:16px;
+      padding:11px 12px;
+      border:1px solid var(--line);
+      border-radius:12px;
+      color:var(--muted);
+      background:rgba(255,255,255,.018);
+      font-size:11px;
+      line-height:1.5;
+    }
+
+    .companion-note strong{
+      color:var(--text);
+    }
+
+    .telemetry-card{
+      padding:23px;
+    }
+
+    .telemetry-head{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:12px;
+    }
+
+    .telemetry-title{
+      margin:5px 0 0;
+      font-size:19px;
+    }
+
+    .source-label{
+      color:var(--muted-2);
+      font-size:10px;
+      text-align:right;
+      line-height:1.4;
+    }
+
+    .metric-grid{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:9px;
+      margin-top:20px;
+    }
+
+    .metric{
+      min-width:0;
+      min-height:69px;
+      padding:11px 12px;
+      border:1px solid var(--line);
+      border-radius:13px;
+      background:rgba(255,255,255,.018);
+    }
+
+    .metric-label{
+      color:var(--muted-2);
+      font-size:10px;
+      font-weight:800;
+    }
+
+    .metric-value{
+      margin-top:7px;
+      overflow:hidden;
+      color:var(--text);
+      font-size:14px;
+      font-weight:900;
+      text-overflow:ellipsis;
+      white-space:nowrap;
+    }
+
+    .metric-value.unavailable{
+      color:var(--muted-2);
+      font-size:12px;
+      font-weight:700;
+    }
+
+    .data-contract{
+      display:flex;
+      align-items:flex-start;
+      gap:9px;
+      margin-top:17px;
+      padding:12px;
+      border:1px solid rgba(53,216,255,.22);
+      border-radius:13px;
+      color:var(--muted);
+      background:var(--cyan-soft);
+      font-size:11px;
+      line-height:1.55;
+    }
+
+    .data-contract strong{
+      color:var(--cyan);
+    }
+
+    .section-card{
+      margin-top:18px;
+      padding:22px;
+    }
+
+    .section-head{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:14px;
+      margin-bottom:15px;
+    }
+
+    .section-title{
+      margin:0;
+      font-size:18px;
+      letter-spacing:-.02em;
+    }
+
+    .section-subtitle{
+      margin:4px 0 0;
+      color:var(--muted);
+      font-size:12px;
+    }
+
+    .state-track{
+      display:flex;
+      gap:8px;
+      overflow-x:auto;
+      padding:4px 1px 3px;
+      scrollbar-width:thin;
+    }
+
+    .state-step{
+      flex:1 0 105px;
+      min-height:70px;
+      padding:11px 10px;
+      border:1px solid var(--line);
+      border-radius:13px;
+      background:rgba(255,255,255,.015);
+    }
+
+    .state-step .step-index{
+      display:block;
+      color:var(--muted-2);
+      font-size:9px;
+      font-weight:950;
+      letter-spacing:.12em;
+    }
+
+    .state-step .step-name{
+      display:block;
+      margin-top:8px;
+      color:var(--muted);
+      font-size:10px;
+      font-weight:850;
+      line-height:1.2;
+    }
+
+    .state-step.active{
+      border-color:rgba(53,216,255,.45);
+      background:var(--cyan-soft);
+      box-shadow:inset 0 2px 0 var(--cyan);
+    }
+
+    .state-step.active .step-index,
+    .state-step.active .step-name{
+      color:var(--cyan);
+    }
+
+    .state-step.done{
+      border-color:rgba(75,227,160,.28);
+    }
+
+    .state-step.done .step-index,
+    .state-step.done .step-name{
+      color:var(--green);
+    }
+
+    .state-step.failed{
+      border-color:rgba(255,112,132,.36);
+      background:rgba(255,112,132,.07);
+    }
+
+    .state-step.failed .step-index,
+    .state-step.failed .step-name{
+      color:var(--red);
+    }
+
+    .two-card-grid{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:18px;
+      margin-top:18px;
+    }
+
+    .mini-card{
+      min-width:0;
+      padding:19px;
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      background:var(--surface);
+    }
+
+    .mini-card h3{
+      margin:0;
+      font-size:15px;
+    }
+
+    .mini-card p{
+      margin:8px 0 0;
+      color:var(--muted);
+      font-size:12px;
+      line-height:1.55;
+    }
+
+    .check-list{
+      display:grid;
+      gap:10px;
+      margin:15px 0 0;
+      padding:0;
+      list-style:none;
+    }
+
+    .check-list li{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      padding-bottom:9px;
+      border-bottom:1px solid var(--line);
+      color:var(--muted);
+      font-size:11px;
+    }
+
+    .check-list li:last-child{
+      padding-bottom:0;
+      border-bottom:0;
+    }
+
+    .check-list b{
+      color:var(--green);
+      font-size:10px;
+      letter-spacing:.05em;
+    }
+
+    .check-list b.neutral{
+      color:var(--muted-2);
+    }
+
+    .policy-banner{
+      display:flex;
+      align-items:flex-start;
+      gap:10px;
+      margin-bottom:18px;
+      padding:14px 15px;
+      border:1px solid rgba(139,124,255,.24);
+      border-radius:15px;
+      color:var(--muted);
+      background:rgba(139,124,255,.08);
+      font-size:12px;
+      line-height:1.55;
+    }
+
+    .policy-banner strong{
+      color:var(--violet);
+    }
+
+    .stack-list{
+      display:grid;
+      gap:12px;
+    }
+
+    .gateway-card,
+    .profile-card,
+    .audit-row{
+      min-width:0;
+      padding:16px;
+      border:1px solid var(--line);
+      border-radius:16px;
+      background:var(--surface);
+    }
+
+    .gateway-head,
+    .profile-head,
+    .audit-head{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:12px;
+    }
+
+    .gateway-name,
+    .profile-name{
+      margin:0;
+      font-size:15px;
+      font-weight:900;
+    }
+
+    .gateway-host{
+      margin-top:3px;
+      color:var(--muted);
+      font-size:11px;
+      word-break:break-word;
+    }
+
+    .gateway-grid{
+      display:grid;
+      grid-template-columns:repeat(4,minmax(0,1fr));
+      gap:9px;
+      margin-top:15px;
+    }
+
+    .data-cell{
+      min-width:0;
+      padding:10px;
+      border:1px solid var(--line);
+      border-radius:11px;
+      background:rgba(255,255,255,.015);
+    }
+
+    .data-cell span{
+      display:block;
+      color:var(--muted-2);
+      font-size:9px;
+      font-weight:850;
+      text-transform:uppercase;
+    }
+
+    .data-cell b{
+      display:block;
+      margin-top:5px;
+      overflow:hidden;
+      color:var(--text);
+      font-size:11px;
+      text-overflow:ellipsis;
+      white-space:nowrap;
+    }
+
+    .gateway-actions,
+    .profile-actions,
+    .test-actions{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin-top:14px;
+    }
+
+    .small-btn{
+      min-height:40px;
+      padding:0 11px;
+      border:1px solid var(--line);
+      border-radius:10px;
+      color:var(--muted);
+      background:var(--surface-2);
+      font-size:10px;
+      font-weight:900;
+      letter-spacing:.04em;
+    }
+
+    .small-btn.accent{
+      color:var(--cyan);
+      border-color:rgba(53,216,255,.28);
+      background:var(--cyan-soft);
+    }
+
+    .empty-state{
+      display:grid;
+      justify-items:center;
+      padding:38px 18px;
+      border:1px dashed var(--line-strong);
+      border-radius:16px;
+      text-align:center;
+    }
+
+    .empty-icon{
+      width:44px;
+      height:44px;
+      display:grid;
+      place-items:center;
+      border:1px solid var(--line);
+      border-radius:14px;
+      color:var(--muted);
+      background:var(--surface-2);
+      font-size:19px;
+    }
+
+    .empty-state h3{
+      margin:13px 0 5px;
+      font-size:15px;
+    }
+
+    .empty-state p{
+      max-width:460px;
+      margin:0;
+      color:var(--muted);
+      font-size:12px;
+      line-height:1.55;
+    }
+
+    .profile-grid{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:12px;
+    }
+
+    .profile-card{
+      display:flex;
+      flex-direction:column;
+      min-height:174px;
+    }
+
+    .profile-card.selected{
+      border-color:rgba(53,216,255,.42);
+      box-shadow:inset 0 2px 0 var(--cyan);
+    }
+
+    .profile-summary{
+      flex:1;
+      margin:9px 0 0;
+      color:var(--muted);
+      font-size:11px;
+      line-height:1.55;
+    }
+
+    .profile-status{
+      margin-top:12px;
+      color:var(--muted-2);
+      font-size:10px;
+      font-weight:800;
+    }
+
+    .admin-layout{
+      display:grid;
+      grid-template-columns:minmax(0,1fr) minmax(270px,.76fr);
+      gap:18px;
+    }
+
+    .admin-form{
+      padding:22px;
+    }
+
+    .admin-form .form-grid{
+      margin-top:18px;
+    }
+
+    .form-note{
+      margin-top:12px;
+      color:var(--muted-2);
+      font-size:10px;
+      line-height:1.5;
+    }
+
+    .admin-side{
+      display:grid;
+      align-content:start;
+      gap:12px;
+    }
+
+    .test-panel{
+      padding:19px;
+    }
+
+    .test-status{
+      min-height:52px;
+      margin-top:13px;
+      padding:11px;
+      border:1px solid var(--line);
+      border-radius:12px;
+      color:var(--muted);
+      background:rgba(255,255,255,.015);
+      font-size:11px;
+      line-height:1.45;
+    }
+
+    .audit-list{
+      display:grid;
+      gap:9px;
+    }
+
+    .audit-action{
+      color:var(--text);
+      font-size:12px;
+      font-weight:900;
+    }
+
+    .audit-meta{
+      margin-top:4px;
+      color:var(--muted);
+      font-size:10px;
+    }
+
+    .audit-result{
+      color:var(--muted-2);
+      font-size:10px;
+      font-weight:900;
+    }
+
+    .footer{
+      margin:25px 0 0;
+      color:var(--muted-2);
+      font-size:10px;
+      text-align:center;
+    }
+
+    .footer strong{
+      color:var(--text);
+    }
+
+    .settings-panel{
+      position:fixed;
+      top:82px;
+      right:24px;
+      z-index:60;
+      width:min(360px,calc(100vw - 32px));
+      display:none;
+      padding:18px;
+      border:1px solid var(--line-strong);
+      border-radius:18px;
+      background:var(--surface);
+      box-shadow:0 25px 80px rgba(0,0,0,.38);
+    }
+
+    .settings-panel.open{
+      display:block;
+    }
+
+    .settings-head{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+    }
+
+    .settings-head h2{
+      margin:0;
+      font-size:17px;
+    }
+
+    .close-btn{
+      width:38px;
+      min-width:38px;
+      height:38px;
+      min-height:38px;
+      border:1px solid var(--line);
+      border-radius:11px;
+      background:var(--surface-2);
+      color:var(--muted);
+    }
+
+    .theme-grid{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:8px;
+      margin-top:16px;
+    }
+
+    .theme-option{
+      min-height:58px;
+      padding:8px;
+      border:1px solid var(--line);
+      border-radius:11px;
+      color:var(--muted);
+      background:var(--surface-2);
+      font-size:10px;
+      font-weight:850;
+    }
+
+    .theme-option.active{
+      border-color:rgba(53,216,255,.42);
+      color:var(--cyan);
+      background:var(--cyan-soft);
+    }
+
+    .settings-row{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      padding:12px 0;
+      border-bottom:1px solid var(--line);
+      color:var(--muted);
+      font-size:11px;
+    }
+
+    .settings-row:last-child{
+      border-bottom:0;
+    }
+
+    .settings-row b{
+      color:var(--text);
+      text-align:right;
+    }
+
+    .settings-note{
+      margin-top:14px;
+      color:var(--muted-2);
+      font-size:10px;
+      line-height:1.55;
+    }
+
+    .toast{
+      position:fixed;
+      left:50%;
+      bottom:22px;
+      z-index:80;
+      width:min(430px,calc(100vw - 30px));
+      padding:13px 15px;
+      border:1px solid var(--line-strong);
+      border-radius:13px;
+      color:var(--text);
+      background:var(--surface-3);
+      box-shadow:var(--shadow);
+      font-size:12px;
+      text-align:center;
+      transform:translate(-50%,140px);
+      transition:transform .22s ease;
+    }
+
+    .toast.visible{
+      transform:translate(-50%,0);
+    }
+
+    .hidden-file{
+      display:none;
+    }
+
+    @media (max-width:930px){
+      .app-shell{
+        grid-template-columns:1fr;
+        padding-top:18px;
+      }
+
+      .sidebar{
+        position:static;
+      }
+
+      .sidebar-kicker{
+        display:none;
+      }
+
+      .nav{
+        display:flex;
+        gap:6px;
+        overflow-x:auto;
+        padding-bottom:2px;
+      }
+
+      .nav-btn{
+        width:auto;
+        flex:0 0 auto;
+        padding:0 13px;
+      }
+
+      .sidebar-card,
+      .sidebar-foot{
+        display:none;
+      }
+
+      .connection-grid,
+      .admin-layout{
+        grid-template-columns:1fr;
+      }
+    }
+
+    @media (max-width:650px){
+      .topbar{
+        height:64px;
+        padding:0 15px;
+      }
+
+      .plane-chip{
+        display:none;
+      }
+
+      .app-shell{
+        padding:16px 15px 0;
+      }
+
+      .view-header{
+        align-items:flex-start;
+        flex-direction:column;
+        margin-bottom:16px;
+      }
+
+      .view-header > .secondary-btn{
+        width:100%;
+      }
+
+      .connection-card,
+      .telemetry-card,
+      .section-card,
+      .admin-form{
+        padding:17px;
+      }
+
+      .card-title{
+        font-size:21px;
+      }
+
+      .form-grid,
+      .two-card-grid,
+      .profile-grid{
+        grid-template-columns:1fr;
+      }
+
+      .field.full{
+        grid-column:auto;
+      }
+
+      .gateway-grid{
+        grid-template-columns:repeat(2,minmax(0,1fr));
+      }
+
+      .action-row{
+        grid-template-columns:1fr;
+      }
+
+      .section-head{
+        align-items:flex-start;
+        flex-direction:column;
+      }
+    }
+
+    @media (max-width:390px){
+      .brand-credit{
+        display:none;
+      }
+
+      .brand-name{
+        font-size:16px;
+      }
+
+      .brand-mark{
+        width:38px;
+        height:38px;
+        flex-basis:38px;
+      }
+
+      .gateway-grid{
+        grid-template-columns:1fr 1fr;
+      }
+    }
+
+    @media (prefers-reduced-motion:reduce){
+      *,*:before,*:after{
+        scroll-behavior:auto!important;
+        transition:none!important;
+        animation:none!important;
+      }
+    }
+  </style>
 </head>
 
 <body>
-
-<div class="topbar">
-  <div class="top-brand">
-    <div class="logo">Aethera <span>VPN</span></div>
-    <div class="credit-mini">Made By Ravidu Heshan</div>
-  </div>
-  <div class="top-actions">
-    <button class="settings" id="settingsBtn" onclick="toggleSettings()" aria-label="Settings" aria-expanded="false">⚙️</button>
-    <button class="theme" id="themeBtn" onclick="toggleTheme()" aria-label="Theme">☀️</button>
-  </div>
-</div>
-
-<div id="settingsPanel" class="settings-panel" aria-hidden="true">
-  <div class="settings-title">Aethera VPN Settings</div>
-  <div class="setting-row">
-    <span>Profile</span>
-    <strong id="profileState">Not selected</strong>
-  </div>
-  <button class="panel-btn" onclick="importProfile(); toggleSettings(false);">
-    SELECT AUTHORIZED PROFILE
-  </button>
-  <div class="settings-note">
-    Use an authorized WireGuard profile from your VPN provider.
-    Aethera does not create mobile-data packages or use SNI/Host/packet tricks.
-  </div>
-  <div class="credit-box">
-    <strong>Made By Ravidu Heshan</strong><br>
-    Legitimate encrypted VPN client for authorized profiles.
-  </div>
-</div>
-
-<div id="browserNote" class="browser-note">
-  VPN controls work inside the Aethera VPN Android app.
-</div>
-
-<div class="main">
-
-  <div class="hero">
-    <h1>Aethera <span>VPN</span></h1>
-    <p>Private • Secure • Simple</p>
-  </div>
-
-  <div class="globe-area">
-    <div class="globe">
-      <span class="node n1"></span>
-      <span class="node n2"></span>
-      <span class="node n3"></span>
-    </div>
-  </div>
-
-  <div class="status-card">
-
-    <div class="shield">🛡️</div>
-
-    <div id="vpnStatus">Disconnected</div>
-
-    <div id="vpnSub">
-      VPN tunnel is not active
-    </div>
-
-    <button class="btn connect" onclick="connectVPN()">
-      CONNECT
-    </button>
-
-    <button class="btn disconnect" onclick="disconnectVPN()">
-      DISCONNECT
-    </button>
-
-    <button class="btn import" onclick="importProfile()">
-      IMPORT WIREGUARD PROFILE
-    </button>
-
-  </div>
-
-  <div class="section profile-section">
-    <div class="section-title">VPN Package / Profile</div>
-    <div class="section-sub">
-      Select a location label for your authorized WireGuard profile.
-      This does not create a mobile-data package or an SNI tunnel.
-    </div>
-    <select id="profileSelect" class="profile-select" onchange="selectServer(this.value)">
-      <option value="">Select authorized WireGuard profile</option>
-      <option value="United States">United States</option>
-      <option value="Netherlands">Netherlands</option>
-      <option value="Japan">Japan</option>
-      <option value="Singapore">Singapore</option>
-    </select>
-    <div id="selectionNote" class="selection-note">
-      Import the matching authorized profile before connecting.
-    </div>
-  </div>
-
-  <div class="section">
-
-    <div class="section-title">Servers</div>
-
-    <div class="section-sub">
-      Available locations depend on your authorized VPN profile.
-    </div>
-
-    <div class="server selectable" data-server="United States" role="button" tabindex="0" onclick="selectServer('United States')">
-      <div class="server-left">
-        <div class="flag">🇺🇸</div>
-        <div>
-          <div class="server-name">United States</div>
-          <div class="server-type">WireGuard Profile</div>
-        </div>
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-mark" aria-hidden="true">A</div>
+      <div class="brand-copy">
+        <div class="brand-name">Aethera <span>VPN</span></div>
+        <div class="brand-credit">Created by Ravidu Heshan</div>
       </div>
-      <div class="ready required">◌ PROFILE REQUIRED</div>
     </div>
 
-    <div class="server selectable" data-server="Netherlands" role="button" tabindex="0" onclick="selectServer('Netherlands')">
-      <div class="server-left">
-        <div class="flag">🇳🇱</div>
-        <div>
-          <div class="server-name">Netherlands</div>
-          <div class="server-type">WireGuard Profile</div>
-        </div>
+    <div class="top-actions">
+      <div class="plane-chip"><span class="dot"></span><span id="planeStatus">CONTROL PLANE</span></div>
+      <button class="icon-btn" id="themeCycleBtn" type="button" aria-label="Change theme" title="Change theme">☾</button>
+      <button class="icon-btn" id="settingsBtn" type="button" aria-label="Open settings" aria-expanded="false" title="Settings">⚙</button>
+    </div>
+  </header>
+
+  <div id="browserNote" class="notice" role="status" aria-live="polite"></div>
+
+  <div class="app-shell">
+    <aside class="sidebar" aria-label="Aethera navigation">
+      <div class="sidebar-kicker">SECURE CONTROL PLANE</div>
+      <nav class="nav">
+        <button class="nav-btn active" type="button" data-view-target="dashboard"><span class="nav-icon">⌂</span>Dashboard</button>
+        <button class="nav-btn" type="button" data-view-target="gateways"><span class="nav-icon">◈</span>SNI Gateways</button>
+        <button class="nav-btn" type="button" data-view-target="profiles"><span class="nav-icon">▣</span>Profiles</button>
+        <button class="nav-btn" type="button" data-view-target="admin"><span class="nav-icon">⌘</span>Admin</button>
+        <button class="nav-btn" type="button" data-view-target="audit"><span class="nav-icon">≡</span>Audit</button>
+      </nav>
+
+      <div class="sidebar-card">
+        <div class="sidebar-card-title"><span class="status-dot"></span>Authorized routes only</div>
+        <p>Gateway records, SNI values and tunnel authorization must come from the protected operator backend.</p>
       </div>
-      <div class="ready required">◌ PROFILE REQUIRED</div>
-    </div>
 
-    <div class="server selectable" data-server="Japan" role="button" tabindex="0" onclick="selectServer('Japan')">
-      <div class="server-left">
-        <div class="flag">🇯🇵</div>
-        <div>
-          <div class="server-name">Japan</div>
-          <div class="server-type">WireGuard Profile</div>
-        </div>
+      <div class="sidebar-foot">
+        <strong>Aethera VPN</strong><br>
+        Dashboard is the control plane.<br>
+        Companion app is the tunnel endpoint.<br><br>
+        Created by Ravidu Heshan
       </div>
-      <div class="ready required">◌ PROFILE REQUIRED</div>
-    </div>
+    </aside>
 
-    <div class="server selectable" data-server="Singapore" role="button" tabindex="0" onclick="selectServer('Singapore')">
-      <div class="server-left">
-        <div class="flag">🇸🇬</div>
-        <div>
-          <div class="server-name">Singapore</div>
-          <div class="server-type">WireGuard Profile</div>
+    <main class="main">
+      <section class="view active" data-view="dashboard">
+        <div class="view-header">
+          <div>
+            <div class="eyebrow">AUTHORIZED NETWORK ACCESS</div>
+            <h1 class="view-title">Secure connection, clearly reported.</h1>
+            <p class="view-subtitle">Choose an approved profile and transport. Real gateway telemetry appears only after the secure API or companion client confirms it.</p>
+          </div>
+          <button class="secondary-btn" id="refreshBtn" type="button">REFRESH STATUS</button>
         </div>
-      </div>
-      <div class="ready required">◌ PROFILE REQUIRED</div>
-    </div>
 
+        <div class="connection-grid">
+          <section class="card connection-card" aria-labelledby="connectionTitle">
+            <div class="card-head">
+              <div>
+                <div class="eyebrow">SECURE CONNECTION</div>
+                <h2 class="card-title" id="connectionTitle">Disconnected</h2>
+                <p class="card-copy" id="vpnSub">No device-wide VPN tunnel is active.</p>
+              </div>
+              <div class="status-pill" id="statusPill"><span class="status-dot"></span><span id="statusPillText">DISCONNECTED</span></div>
+            </div>
+
+            <div class="form-grid">
+              <div class="field">
+                <label for="serverSelect">Server</label>
+                <select id="serverSelect">
+                  <option value="auto">Auto Select</option>
+                </select>
+                <div class="field-help" id="serverHelp">Authorized server data: UNAVAILABLE</div>
+              </div>
+
+              <div class="field">
+                <label for="profileSelect">Profile</label>
+                <select id="profileSelect"></select>
+                <div class="field-help" id="profileHelp">Profile validation: BACKEND REQUIRED</div>
+              </div>
+
+              <div class="field">
+                <label for="transportSelect">Transport</label>
+                <select id="transportSelect">
+                  <option value="AUTO">AUTO</option>
+                  <option value="WIREGUARD">WIREGUARD</option>
+                  <option value="OPENVPN">OPENVPN</option>
+                  <option value="TLS_GATEWAY">TLS GATEWAY</option>
+                  <option value="HTTPS_GATEWAY">HTTPS GATEWAY</option>
+                </select>
+                <div class="field-help">No silent downgrade of encryption or authentication.</div>
+              </div>
+
+              <div class="field">
+                <label for="gatewaySelect">Gateway</label>
+                <select id="gatewaySelect">
+                  <option value="auto">Automatic authorized gateway</option>
+                </select>
+                <div class="field-help" id="gatewayHelp">Gateway telemetry: UNAVAILABLE</div>
+              </div>
+            </div>
+
+            <div class="action-row">
+              <button class="primary-btn" id="connectBtn" type="button">CONNECT</button>
+              <button class="secondary-btn" id="disconnectBtn" type="button">DISCONNECT</button>
+            </div>
+
+            <button class="secondary-btn accent" id="importNativeBtn" type="button" style="width:100%;margin-top:10px">IMPORT AUTHORIZED WIREGUARD PROFILE IN APP</button>
+
+            <div class="companion-note" id="companionNote">
+              <span aria-hidden="true">◉</span>
+              <span><strong>Companion endpoint:</strong> A browser cannot create a device-wide VPN tunnel. Open the authorized Android companion app for WireGuard or a future backend-authorized TLS session.</span>
+            </div>
+          </section>
+
+          <section class="card telemetry-card" aria-labelledby="telemetryTitle">
+            <div class="telemetry-head">
+              <div>
+                <div class="eyebrow">REAL-TIME TELEMETRY</div>
+                <h2 class="telemetry-title" id="telemetryTitle">Connection details</h2>
+              </div>
+              <div class="source-label" id="telemetrySource">SOURCE<br>UNAVAILABLE</div>
+            </div>
+
+            <div class="metric-grid">
+              <div class="metric"><div class="metric-label">Protocol</div><div class="metric-value unavailable" id="metricProtocol">UNAVAILABLE</div></div>
+              <div class="metric"><div class="metric-label">TLS version</div><div class="metric-value unavailable" id="metricTls">UNAVAILABLE</div></div>
+              <div class="metric"><div class="metric-label">SNI gateway</div><div class="metric-value unavailable" id="metricGateway">UNAVAILABLE</div></div>
+              <div class="metric"><div class="metric-label">Latency</div><div class="metric-value unavailable" id="metricLatency">UNAVAILABLE</div></div>
+              <div class="metric"><div class="metric-label">Download</div><div class="metric-value unavailable" id="metricDownload">UNAVAILABLE</div></div>
+              <div class="metric"><div class="metric-label">Upload</div><div class="metric-value unavailable" id="metricUpload">UNAVAILABLE</div></div>
+              <div class="metric"><div class="metric-label">Duration</div><div class="metric-value unavailable" id="metricDuration">UNAVAILABLE</div></div>
+              <div class="metric"><div class="metric-label">Session</div><div class="metric-value unavailable" id="metricSession">UNAVAILABLE</div></div>
+            </div>
+
+            <div class="data-contract">
+              <span aria-hidden="true">✓</span>
+              <span><strong>Real-data contract.</strong> ONLINE, CONNECTED, latency, load, TLS and usage values are shown only when returned by authorized monitoring or the companion client.</span>
+            </div>
+          </section>
+        </div>
+
+        <section class="card section-card">
+          <div class="section-head">
+            <div>
+              <h2 class="section-title">Connection state</h2>
+              <p class="section-subtitle" id="stateDescription">Ready for an authorized connection request.</p>
+            </div>
+            <span class="tag" id="stateTag">DISCONNECTED</span>
+          </div>
+
+          <div class="state-track" id="stateTrack" aria-label="Connection state machine">
+            <div class="state-step active" data-state-step="DISCONNECTED"><span class="step-index">01</span><span class="step-name">DISCONNECTED</span></div>
+            <div class="state-step" data-state-step="REQUESTING_AUTHORIZATION"><span class="step-index">02</span><span class="step-name">REQUEST AUTH</span></div>
+            <div class="state-step" data-state-step="SELECTING_GATEWAY"><span class="step-index">03</span><span class="step-name">SELECT GATEWAY</span></div>
+            <div class="state-step" data-state-step="DNS_RESOLVING"><span class="step-index">04</span><span class="step-name">DNS RESOLVE</span></div>
+            <div class="state-step" data-state-step="TLS_HANDSHAKE"><span class="step-index">05</span><span class="step-name">TLS HANDSHAKE</span></div>
+            <div class="state-step" data-state-step="AUTHENTICATING"><span class="step-index">06</span><span class="step-name">AUTHENTICATE</span></div>
+            <div class="state-step" data-state-step="ESTABLISHING_TUNNEL"><span class="step-index">07</span><span class="step-name">ESTABLISH TUNNEL</span></div>
+            <div class="state-step" data-state-step="CONNECTED"><span class="step-index">08</span><span class="step-name">CONNECTED</span></div>
+          </div>
+        </section>
+
+        <div class="two-card-grid">
+          <section class="mini-card">
+            <h3>Security posture</h3>
+            <p>Static control-plane guardrails are enabled. The backend must still authorize the account, profile, server, gateway and usage policy.</p>
+            <ul class="check-list">
+              <li><span>Arbitrary SNI / bug-host discovery</span><b>BLOCKED</b></li>
+              <li><span>Permanent VPN secrets in browser</span><b>BLOCKED</b></li>
+              <li><span>Unauthenticated fallback</span><b>BLOCKED</b></li>
+            </ul>
+          </section>
+          <section class="mini-card">
+            <h3>Control plane status</h3>
+            <p id="apiSummary">This GitHub Pages build has no secure API endpoint configured yet.</p>
+            <ul class="check-list">
+              <li><span>Secure API</span><b class="neutral" id="apiState">UNAVAILABLE</b></li>
+              <li><span>Gateway health worker</span><b class="neutral" id="workerState">UNAVAILABLE</b></li>
+              <li><span>Companion client</span><b class="neutral" id="companionState">NOT DETECTED</b></li>
+            </ul>
+          </section>
+        </div>
+      </section>
+
+      <section class="view" data-view="gateways">
+        <div class="view-header">
+          <div>
+            <div class="eyebrow">OPERATOR-APPROVED INFRASTRUCTURE</div>
+            <h1 class="view-title">SNI / TLS gateways</h1>
+            <p class="view-subtitle">Only gateways returned by the authenticated backend are eligible. This page never discovers arbitrary public hosts.</p>
+          </div>
+          <button class="secondary-btn" id="refreshGatewaysBtn" type="button">REFRESH GATEWAYS</button>
+        </div>
+
+        <div class="policy-banner"><span aria-hidden="true">◈</span><span><strong>Authorization boundary.</strong> Hostname syntax, DNS, TLS handshake, certificate match, expiry, allowed versions and backend reachability must all pass before a gateway can be marked VALID.</span></div>
+
+        <section class="card section-card" style="margin-top:0">
+          <div class="section-head">
+            <div>
+              <h2 class="section-title">Authorized gateway inventory</h2>
+              <p class="section-subtitle">Health values are never inferred from labels or local browser time.</p>
+            </div>
+            <span class="tag" id="gatewayInventoryState">UNAVAILABLE</span>
+          </div>
+          <div id="gatewayList" class="stack-list"></div>
+        </section>
+
+        <section class="card section-card">
+          <div class="section-head">
+            <div>
+              <h2 class="section-title">Authorized server inventory</h2>
+              <p class="section-subtitle">Server identity and health are populated only from the secure server-management API.</p>
+            </div>
+            <span class="tag" id="serverInventoryState">UNAVAILABLE</span>
+          </div>
+          <div id="serverList" class="stack-list"></div>
+        </section>
+      </section>
+
+      <section class="view" data-view="profiles">
+        <div class="view-header">
+          <div>
+            <div class="eyebrow">CONNECTION POLICY</div>
+            <h1 class="view-title">Profiles and packages</h1>
+            <p class="view-subtitle">Profiles describe transport policy. They are not authorization by themselves; the backend validates them before a connection session is issued.</p>
+          </div>
+          <div class="gateway-actions">
+            <button class="secondary-btn accent" id="importProfileJsonBtn" type="button">IMPORT .VPNPROFILE.JSON</button>
+            <button class="secondary-btn" id="exportProfileJsonBtn" type="button">EXPORT SAFE PROFILE</button>
+          </div>
+        </div>
+
+        <div class="policy-banner"><span aria-hidden="true">▣</span><span><strong>Safe profile format.</strong> Exported profiles contain only policy metadata. Permanent private keys, passwords, API secrets and long-lived tokens are never embedded.</span></div>
+
+        <section class="card section-card" style="margin-top:0">
+          <div class="section-head">
+            <div>
+              <h2 class="section-title">Supported profile types</h2>
+              <p class="section-subtitle">Select one for the connection request. Backend validation status remains visible.</p>
+            </div>
+            <span class="tag" id="profileCatalogState">CATALOG</span>
+          </div>
+          <div class="profile-grid" id="profileCatalog"></div>
+        </section>
+        <input class="hidden-file" id="profileFileInput" type="file" accept=".json,application/json">
+      </section>
+
+      <section class="view" data-view="admin">
+        <div class="view-header">
+          <div>
+            <div class="eyebrow">RESTRICTED OPERATIONS</div>
+            <h1 class="view-title">Gateway administration</h1>
+            <p class="view-subtitle">Administrative actions are sent only to the protected API. The static page cannot grant itself admin access.</p>
+          </div>
+          <span class="status-pill" id="adminAccessPill"><span class="status-dot"></span><span>API UNAVAILABLE</span></span>
+        </div>
+
+        <div class="admin-layout">
+          <section class="card admin-form">
+            <div class="section-head">
+              <div>
+                <h2 class="section-title">Add authorized gateway</h2>
+                <p class="section-subtitle">The server must validate ownership and certificate authority before activation.</p>
+              </div>
+            </div>
+
+            <form id="gatewayForm">
+              <div class="form-grid">
+                <div class="field">
+                  <label for="gatewayName">Gateway name</label>
+                  <input id="gatewayName" name="name" type="text" maxlength="80" placeholder="Singapore TLS 01" required>
+                </div>
+                <div class="field">
+                  <label for="gatewayRegion">Region</label>
+                  <input id="gatewayRegion" name="region" type="text" maxlength="60" placeholder="Singapore" required>
+                </div>
+                <div class="field">
+                  <label for="gatewayHostname">Public hostname</label>
+                  <input id="gatewayHostname" name="hostname" type="text" maxlength="253" placeholder="vpn.example.com" required>
+                </div>
+                <div class="field">
+                  <label for="gatewaySni">Expected SNI</label>
+                  <input id="gatewaySni" name="expected_sni" type="text" maxlength="253" placeholder="vpn.example.com" required>
+                </div>
+                <div class="field">
+                  <label for="gatewayPort">TLS port</label>
+                  <input id="gatewayPort" name="tls_port" type="number" min="1" max="65535" value="443" required>
+                </div>
+                <div class="field">
+                  <label for="gatewayTls">Minimum TLS</label>
+                  <select id="gatewayTls" name="minimum_tls">
+                    <option value="TLS_1_3">TLS 1.3</option>
+                    <option value="TLS_1_2">TLS 1.2</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label for="gatewayAlpn">ALPN</label>
+                  <input id="gatewayAlpn" name="alpn" type="text" maxlength="80" placeholder="h2,http/1.1">
+                </div>
+                <div class="field">
+                  <label for="gatewayInterval">Health interval (seconds)</label>
+                  <input id="gatewayInterval" name="health_check_interval" type="number" min="5" max="3600" value="30" required>
+                </div>
+                <div class="field full">
+                  <label for="gatewayProfiles">Allowed profile IDs</label>
+                  <input id="gatewayProfiles" name="allowed_profiles" type="text" maxlength="500" placeholder="tls-gateway,performance">
+                  <div class="field-help">Comma-separated policy IDs. No secrets or private keys.</div>
+                </div>
+              </div>
+              <div class="form-note">Submitting requires an authenticated administrator session. Host ownership, certificate match and backend reachability are enforced server-side.</div>
+              <div class="action-row">
+                <button class="primary-btn" type="submit">SAVE AUTHORIZED GATEWAY</button>
+                <button class="secondary-btn" type="reset">CLEAR FORM</button>
+              </div>
+            </form>
+          </section>
+
+          <div class="admin-side">
+            <section class="card test-panel">
+              <h2 class="section-title">Gateway tests</h2>
+              <p class="section-subtitle">Tests use real infrastructure through the protected backend.</p>
+              <div class="field" style="margin-top:15px">
+                <label for="adminGatewaySelect">Gateway record</label>
+                <select id="adminGatewaySelect">
+                  <option value="">No authorized gateway loaded</option>
+                </select>
+              </div>
+              <div class="test-actions">
+                <button class="small-btn" type="button" data-gateway-test="dns">TEST DNS</button>
+                <button class="small-btn" type="button" data-gateway-test="tcp">TEST TCP</button>
+                <button class="small-btn" type="button" data-gateway-test="tls">TEST TLS</button>
+                <button class="small-btn" type="button" data-gateway-test="certificate">TEST CERTIFICATE</button>
+                <button class="small-btn accent" type="button" data-gateway-test="full">TEST FULL CONNECTION</button>
+              </div>
+              <div class="test-status" id="testStatus">UNAVAILABLE — protected admin API is not configured.</div>
+            </section>
+
+            <section class="mini-card">
+              <h3>Allowed gateway states</h3>
+              <p>CHECKING, VALID, INVALID, CERTIFICATE_ERROR, DNS_ERROR, TLS_ERROR, BACKEND_UNAVAILABLE, MAINTENANCE and DISABLED.</p>
+            </section>
+          </div>
+        </div>
+      </section>
+
+      <section class="view" data-view="audit">
+        <div class="view-header">
+          <div>
+            <div class="eyebrow">TRACEABLE OPERATIONS</div>
+            <h1 class="view-title">Audit trail</h1>
+            <p class="view-subtitle">Important administrative and session actions belong in the backend audit store. Raw passwords, private keys and full tokens are excluded.</p>
+          </div>
+          <button class="secondary-btn" id="refreshAuditBtn" type="button">REFRESH AUDIT</button>
+        </div>
+
+        <section class="card section-card" style="margin-top:0">
+          <div class="section-head">
+            <div>
+              <h2 class="section-title">Recent events</h2>
+              <p class="section-subtitle">Timestamp, session or user reference, action, resource and result.</p>
+            </div>
+            <span class="tag" id="auditState">UNAVAILABLE</span>
+          </div>
+          <div class="audit-list" id="auditList"></div>
+        </section>
+      </section>
+
+      <div class="footer"><strong>Aethera VPN</strong> · Authorized encrypted access only · Created by Ravidu Heshan</div>
+    </main>
   </div>
 
-  <div class="info">
-    This control site does not host an Aethera-owned VPN endpoint.
-    The Android app creates the encrypted WireGuard tunnel using an authorized WireGuard profile.
-    Private WireGuard credentials are not stored on this website.
+  <div class="settings-panel" id="settingsPanel" aria-hidden="true">
+    <div class="settings-head">
+      <h2>Display and security</h2>
+      <button class="close-btn" id="closeSettingsBtn" type="button" aria-label="Close settings">×</button>
+    </div>
+    <div class="theme-grid">
+      <button class="theme-option" type="button" data-theme-choice="dark">Dark<br><span>Balanced</span></button>
+      <button class="theme-option" type="button" data-theme-choice="night">Night<br><span>OLED focus</span></button>
+      <button class="theme-option" type="button" data-theme-choice="light">Light<br><span>Day mode</span></button>
+    </div>
+    <div class="settings-row"><span>Control plane API</span><b id="settingsApiState">UNAVAILABLE</b></div>
+    <div class="settings-row"><span>Local browser secrets</span><b>NONE STORED</b></div>
+    <div class="settings-row"><span>Companion tunnel</span><b id="settingsCompanionState">NOT DETECTED</b></div>
+    <p class="settings-note">Theme and non-sensitive display preferences may be stored locally. Connection credentials, private keys and permanent tokens must remain outside the browser.</p>
   </div>
 
-  <div class="footer">
-    <strong>Aethera VPN</strong><br>
-    Made By Ravidu Heshan
-  </div>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-</div>
+  <script>
+    (function(){
+      "use strict";
 
-<script>
-function toggleSettings(force){
-  var panel=document.getElementById("settingsPanel");
-  var button=document.getElementById("settingsBtn");
-  if(!panel) return;
+      var STORAGE_THEME = "aethera-theme-v2";
+      var STORAGE_SERVER = "aethera-selected-server-v2";
+      var STORAGE_PROFILE = "aethera-selected-profile-v2";
+      var API_META = document.querySelector('meta[name="aethera-api-base"]');
+      var API_BASE = (window.__AETHERA_API_BASE__ || (API_META && API_META.content) || "").replace(/\/+$/, "");
 
-  var open=
-    typeof force==="boolean"
-      ? force
-      : !panel.classList.contains("open");
+      var PROFILE_CATALOG = [
+        {id:"standard", name:"Standard", transport:"AUTO", summary:"Balanced authorized transport with normal keepalive and routing policy."},
+        {id:"low-bandwidth", name:"Low Bandwidth", transport:"AUTO", summary:"Conservative session and reconnect policy for limited links."},
+        {id:"performance", name:"Performance", transport:"AUTO", summary:"Latency-aware policy when an approved gateway reports capacity."},
+        {id:"streaming", name:"Streaming", transport:"AUTO", summary:"Profile policy for approved streaming routes; no quota or billing bypass."},
+        {id:"privacy", name:"Privacy", transport:"AUTO", summary:"Strict authorization and full-tunnel policy where the operator permits it."},
+        {id:"tls-gateway", name:"TLS Gateway", transport:"TLS_GATEWAY", summary:"Authorized SNI/TLS gateway transport only; no arbitrary host values."},
+        {id:"custom", name:"Custom", transport:"AUTO", summary:"Imported policy metadata awaiting server-side validation."}
+      ];
 
-  panel.classList.toggle("open",open);
-  panel.setAttribute("aria-hidden",open ? "false" : "true");
+      var state = {
+        view:"dashboard",
+        theme:"night",
+        connection:"DISCONNECTED",
+        selectedServer:"auto",
+        selectedProfile:"standard",
+        selectedTransport:"AUTO",
+        selectedGateway:"auto",
+        native:false,
+        api:false,
+        gateways:[],
+        servers:[],
+        profiles:PROFILE_CATALOG.slice(0),
+        session:null,
+        lastDetails:{}
+      };
 
-  if(button){
-    button.setAttribute("aria-expanded",open ? "true" : "false");
-  }
-}
+      var flowStates = [
+        "DISCONNECTED",
+        "REQUESTING_AUTHORIZATION",
+        "SELECTING_GATEWAY",
+        "DNS_RESOLVING",
+        "TLS_HANDSHAKE",
+        "AUTHENTICATING",
+        "ESTABLISHING_TUNNEL",
+        "CONNECTED"
+      ];
 
-function setProfileState(text){
-  var state=document.getElementById("profileState");
-  if(state) state.textContent=text;
-}
+      var flowLabels = {
+        DISCONNECTED:"Ready for an authorized connection request.",
+        REQUESTING_AUTHORIZATION:"Validating user, role, profile, server, gateway health and usage policy.",
+        SELECTING_GATEWAY:"Selecting only an authorized gateway using real health measurements.",
+        DNS_RESOLVING:"Resolving the approved gateway hostname.",
+        TLS_HANDSHAKE:"Negotiating the approved TLS version and ALPN.",
+        AUTHENTICATING:"Authenticating the short-lived connection session.",
+        ESTABLISHING_TUNNEL:"Waiting for the companion client to establish the device tunnel.",
+        CONNECTED:"Tunnel state confirmed by the companion client or secure backend.",
+        CONNECTION_FAILED:"The connection was not established. No connected state is displayed.",
+        DNS_FAILED:"DNS resolution failed for the authorized gateway.",
+        TLS_FAILED:"TLS handshake failed for the authorized gateway.",
+        CERTIFICATE_FAILED:"Certificate validation failed.",
+        AUTH_FAILED:"Connection authorization was denied.",
+        GATEWAY_UNAVAILABLE:"No valid authorized gateway is available.",
+        POLICY_DENIED:"The selected profile or account policy denied this request.",
+        TIMEOUT:"The authorized connection request timed out.",
+        CONNECTION_LOST:"The confirmed tunnel was lost.",
+        RECONNECTING:"Reconnecting through the authorized policy."
+      };
 
-function selectServer(name){
-  var select=document.getElementById("profileSelect");
-  var note=document.getElementById("selectionNote");
+      function byId(id){
+        return document.getElementById(id);
+      }
 
-  if(select) select.value=name || "";
+      function safeStorageGet(key){
+        try{return window.localStorage.getItem(key) || "";}catch(e){return "";}
+      }
 
-  document.querySelectorAll(".server[data-server]").forEach(function(card){
-    card.classList.toggle(
-      "selected",
-      !!name && card.getAttribute("data-server")===name
-    );
-  });
+      function safeStorageSet(key,value){
+        try{window.localStorage.setItem(key,value);}catch(e){}
+      }
 
-  if(name){
-    localStorage.setItem("aethera-selected-server",name);
-    if(note){
-      note.textContent=
-        name + " selected. Import the matching authorized profile before connecting.";
-    }
-  }else{
-    localStorage.removeItem("aethera-selected-server");
-    if(note){
-      note.textContent=
-        "Import the matching authorized profile before connecting.";
-    }
-  }
-}
+      function displayValue(value){
+        if(value === null || typeof value === "undefined" || value === ""){
+          return "UNAVAILABLE";
+        }
+        if(Array.isArray(value)){
+          return value.length ? value.join(" / ") : "UNAVAILABLE";
+        }
+        return String(value);
+      }
 
-function appShellAvailable(){
-  if(appAvailable()){
-    return true;
-  }
+      function setText(id,value){
+        var element = byId(id);
+        if(element){element.textContent = value;}
+      }
 
-  var ua=navigator.userAgent || "";
-  return ua.indexOf("; wv)") >= 0 ||
-    (ua.indexOf("Version/4.0") >= 0 &&
-     ua.indexOf("Android") >= 0);
-}
+      function setMetric(id,value){
+        var element = byId(id);
+        if(!element){return;}
+        var text = displayValue(value);
+        element.textContent = text;
+        element.classList.toggle("unavailable",text === "UNAVAILABLE");
+      }
 
-function refreshNativeProfileState(){
-  if(!appAvailable()){
-    setProfileState(
-      appShellAvailable()
-        ? "Use in-app controls"
-        : "Open in Aethera app"
-    );
-    return;
-  }
+      function showToast(message){
+        var toast = byId("toast");
+        if(!toast){return;}
+        toast.textContent = message;
+        toast.classList.add("visible");
+        window.clearTimeout(window.__aetheraToastTimer);
+        window.__aetheraToastTimer = window.setTimeout(function(){
+          toast.classList.remove("visible");
+        },3600);
+      }
 
-  try{
-    setProfileState(
-      AndroidVPN.hasConfig()
-        ? "Imported / ready"
-        : "Not selected"
-    );
-  }catch(e){
-    setProfileState("Unavailable");
-  }
-}
+      function setTheme(theme){
+        if(theme !== "dark" && theme !== "night" && theme !== "light"){
+          theme = "night";
+        }
+        state.theme = theme;
+        document.documentElement.setAttribute("data-theme",theme);
+        safeStorageSet(STORAGE_THEME,theme);
+        var themeButton = byId("themeCycleBtn");
+        if(themeButton){
+          themeButton.textContent = theme === "light" ? "☀" : (theme === "dark" ? "◐" : "☾");
+          themeButton.setAttribute("aria-label","Current theme: " + theme + ". Change theme");
+          themeButton.title = "Current theme: " + theme;
+        }
+        var color = theme === "light" ? "#eef4f8" : (theme === "dark" ? "#10151c" : "#050812");
+        var themeMeta = byId("themeColor");
+        if(themeMeta){themeMeta.setAttribute("content",color);}
+        document.querySelectorAll("[data-theme-choice]").forEach(function(button){
+          button.classList.toggle("active",button.getAttribute("data-theme-choice") === theme);
+        });
+      }
 
-function appAvailable(){
-  return typeof window.AndroidVPN !== "undefined";
-}
+      function cycleTheme(){
+        var themes = ["night","dark","light"];
+        var index = themes.indexOf(state.theme);
+        setTheme(themes[(index + 1) % themes.length]);
+      }
 
-function showBrowserNotice(){
-  var note=document.getElementById("browserNote");
-  if(!note) return;
+      function toggleSettings(force){
+        var panel = byId("settingsPanel");
+        var button = byId("settingsBtn");
+        if(!panel){return;}
+        var open = typeof force === "boolean" ? force : !panel.classList.contains("open");
+        panel.classList.toggle("open",open);
+        panel.setAttribute("aria-hidden",open ? "false" : "true");
+        if(button){button.setAttribute("aria-expanded",open ? "true" : "false");}
+      }
 
-  if(!appShellAvailable()){
-    note.style.display="block";
-  }else{
-    note.style.display="none";
-    note.textContent="VPN controls work inside the Aethera VPN Android app.";
-  }
-}
+      function setView(view){
+        state.view = view;
+        document.querySelectorAll("[data-view]").forEach(function(section){
+          section.classList.toggle("active",section.getAttribute("data-view") === view);
+        });
+        document.querySelectorAll("[data-view-target]").forEach(function(button){
+          button.classList.toggle("active",button.getAttribute("data-view-target") === view);
+        });
+        if(view === "gateways"){refreshGateways();}
+        if(view === "audit"){refreshAudit();}
+      }
 
-function connectVPN(){
+      function appAvailable(){
+        return typeof window.AndroidVPN !== "undefined";
+      }
 
-  if(!appAvailable()){
-    showBrowserNotice();
-    return;
-  }
+      function appShellAvailable(){
+        if(appAvailable()){return true;}
+        var ua = navigator.userAgent || "";
+        return ua.indexOf("; wv)") >= 0 || (ua.indexOf("Version/4.0") >= 0 && ua.indexOf("Android") >= 0);
+      }
 
-  setStatus(
-    "Connecting...",
-    "Starting secure VPN tunnel"
-  );
+      function setApiUi(available){
+        state.api = !!available;
+        setText("apiState",state.api ? "ONLINE" : "UNAVAILABLE");
+        setText("settingsApiState",state.api ? "ONLINE" : "UNAVAILABLE");
+        setText("workerState",state.api ? "CHECKING..." : "UNAVAILABLE");
+        var plane = byId("planeStatus");
+        if(plane){plane.textContent = state.api ? "API CONNECTED" : "CONTROL PLANE";}
+        var adminPill = byId("adminAccessPill");
+        if(adminPill){
+          adminPill.classList.toggle("connected",state.api);
+          var adminText = adminPill.querySelector("span:last-child");
+          if(adminText){adminText.textContent = state.api ? "API CONNECTED" : "API UNAVAILABLE";}
+        }
+        setText("apiSummary",state.api ? "Secure API endpoint detected. Values below are populated from authorized responses only." : "This GitHub Pages build has no secure API endpoint configured yet.");
+      }
 
-  try{
-    AndroidVPN.connect();
-  }catch(e){
-    setStatus(
-      "Connection Error",
-      "Unable to contact Android VPN service"
-    );
-  }
-}
-
-function disconnectVPN(){
-
-  if(!appAvailable()){
-    showBrowserNotice();
-    return;
-  }
-
-  setStatus(
-    "Disconnecting...",
-    "Stopping VPN tunnel"
-  );
-
-  try{
-    AndroidVPN.disconnect();
-  }catch(e){
-    setStatus(
-      "Connection Error",
-      "Unable to contact Android VPN service"
-    );
-  }
-}
-
-function importProfile(){
-
-  if(!appAvailable()){
-    var start = Date.now();
-    window.location.href = "aetheravpn://import";
-
-    setTimeout(function(){
-      if(Date.now() - start < 2500 && !appAvailable() && !appShellAvailable()){
-        var note = document.getElementById("browserNote");
-        if(note){
-          note.style.display = "block";
-          note.textContent =
-            "Opening Aethera VPN app to import an authorized WireGuard profile.";
+      function showBrowserNotice(){
+        var note = byId("browserNote");
+        if(!note){return;}
+        if(!appAvailable()){
+          note.textContent = "Browser control plane active. A device-wide tunnel requires the authorized Aethera VPN companion app; this page will not display CONNECTED until the app or secure API confirms it.";
+          note.classList.add("visible");
+          setText("companionState","NOT DETECTED");
+          setText("settingsCompanionState","NOT DETECTED");
+        }else{
+          note.textContent = "Aethera companion detected. Tunnel state will be shown only after native confirmation.";
+          note.classList.add("visible");
+          setText("companionState","AVAILABLE");
+          setText("settingsCompanionState","AVAILABLE");
         }
       }
-    }, 1400);
-    return;
-  }
 
-  try{
-    AndroidVPN.importConfig();
-  }catch(e){
-    setStatus(
-      "Import Error",
-      "Unable to open profile selector"
-    );
-  }
-}
-function setStatus(title,sub){
-
-  document.getElementById("vpnStatus").textContent=title;
-
-  document.getElementById("vpnSub").textContent=sub || "";
-}
-
-function onVpnState(state){
-
-  if(state==="CONNECTED"){
-    setStatus(
-      "Protected",
-      "Encrypted VPN tunnel is active"
-    );
-  }
-
-  else if(state==="CONNECTING"){
-    setStatus(
-      "Connecting...",
-      "Starting secure VPN tunnel"
-    );
-  }
-
-  else if(state==="DISCONNECTED"){
-    setStatus(
-      "Disconnected",
-      "VPN tunnel is not active"
-    );
-  }
-
-  else if(state==="DISCONNECTING"){
-    setStatus(
-      "Disconnecting...",
-      "Stopping VPN tunnel"
-    );
-  }
-
-  else if(state==="SELECT_CONFIG"){
-    setStatus(
-      "Select VPN Profile",
-      "Choose your WireGuard configuration"
-    );
-  }
-
-  else if(state==="CONFIG_IMPORTED"){
-    setProfileState("Imported / ready");
-    setStatus(
-      "Profile Ready",
-      "VPN profile imported successfully"
-    );
-  }
-
-  else if(state==="CONFIG_REQUIRED"){
-    setProfileState("Not selected");
-    setStatus(
-      "Profile Required",
-      "Import a VPN profile first"
-    );
-  }
-
-  else if(state==="CONFIG_IMPORT_CANCELLED"){
-    setStatus(
-      "Import Cancelled",
-      "No VPN profile was selected"
-    );
-  }
-
-  else if(state==="VPN_PERMISSION_DENIED"){
-    setStatus(
-      "Permission Required",
-      "Android VPN permission was denied"
-    );
-  }
-
-  else if(state.indexOf("ERROR:")===0){
-    setStatus(
-      "Connection Error",
-      state.substring(6)
-    );
-  }
-}
-
-window.onVpnState=onVpnState;
-window.aetheraVpnStatus=onVpnState;
-
-window.aetheraNativeReady=function(){
-  showBrowserNotice();
-  refreshNativeProfileState();
-};
-
-window.addEventListener(
-  "aethera-vpn-status",
-  function(e){
-    if(e.detail && e.detail.status){
-      onVpnState(e.detail.status);
-    }
-  }
-);
-
-function toggleTheme(){
-
-  document.body.classList.toggle("light");
-
-  var light=
-    document.body.classList.contains("light");
-
-  document.getElementById("themeBtn").textContent=
-    light ? "🌙" : "☀️";
-
-  localStorage.setItem(
-    "aethera-theme",
-    light ? "light" : "dark"
-  );
-}
-
-if(localStorage.getItem("aethera-theme")==="light"){
-  document.body.classList.add("light");
-  document.getElementById("themeBtn").textContent="🌙";
-}
-
-selectServer(
-  localStorage.getItem("aethera-selected-server") || ""
-);
-
-showBrowserNotice();
-refreshNativeProfileState();
-
-if(appAvailable()){
-
-  try{
-
-    var s=AndroidVPN.getState();
-
-    if(s==="UP"){
-      onVpnState("CONNECTED");
-    }else{
-      onVpnState("DISCONNECTED");
-    }
-
-  }catch(e){}
-}
-</script>
-
-
-<script>
-/* Browser -> Aethera Android app deep-link */
-window.connectVPN = function () {
-
-  /* When website is already running inside Aethera WebView */
-  if (typeof window.AndroidVPN !== "undefined") {
-    try {
-      setStatus("Connecting...", "Starting secure VPN tunnel");
-      AndroidVPN.connect();
-      return;
-    } catch (e) {}
-  }
-
-  /* Normal Chrome/browser: open Aethera app */
-  var start = Date.now();
-
-  window.location.href = "aetheravpn://connect";
-
-  setTimeout(function () {
-    if (Date.now() - start < 2500 && !appAvailable() && !appShellAvailable()) {
-      var note = document.getElementById("browserNote");
-      if (note) {
-        note.style.display = "block";
-        note.textContent =
-          "Opening Aethera VPN app. If nothing happens, install/open Aethera VPN first.";
+      function setConnectionState(next,description){
+        state.connection = next || "DISCONNECTED";
+        var isConnected = state.connection === "CONNECTED";
+        var isFailure = /FAILED|DENIED|UNAVAILABLE|TIMEOUT|LOST/.test(state.connection);
+        var isChecking = !isConnected && !isFailure && state.connection !== "DISCONNECTED";
+        var pill = byId("statusPill");
+        var pillText = byId("statusPillText");
+        if(pill){
+          pill.classList.toggle("connected",isConnected);
+          pill.classList.toggle("failed",isFailure);
+          pill.classList.toggle("checking",isChecking);
+        }
+        if(pillText){pillText.textContent = state.connection;}
+        setText("stateTag",state.connection);
+        setText("stateDescription",description || flowLabels[state.connection] || "Connection state is reported by an authorized component.");
+        setText("connectionTitle",isConnected ? "Connected" : (state.connection === "DISCONNECTED" ? "Disconnected" : state.connection.replace(/_/g," ")));
+        setText("vpnSub",isConnected ? "Tunnel state confirmed by the companion client or secure backend." : (description || flowLabels[state.connection] || "No device-wide VPN tunnel is active."));
+        document.querySelectorAll("[data-state-step]").forEach(function(step){
+          var stepState = step.getAttribute("data-state-step");
+          var currentIndex = flowStates.indexOf(state.connection);
+          var stepIndex = flowStates.indexOf(stepState);
+          step.classList.remove("active","done","failed");
+          if(isFailure){
+            if(stepState === "DISCONNECTED"){step.classList.add("done");}
+            if(stepState === "ESTABLISHING_TUNNEL"){step.classList.add("failed");}
+          }else if(currentIndex >= 0){
+            if(stepState === state.connection){step.classList.add("active");}
+            else if(stepIndex >= 0 && stepIndex < currentIndex){step.classList.add("done");}
+          }
+        });
       }
-    }
-  }, 1400);
-};
 
-window.disconnectVPN = function () {
+      function setConnectionDetails(details){
+        details = details || {};
+        state.lastDetails = details;
+        setMetric("metricProtocol",details.protocol);
+        setMetric("metricTls",details.tls_version);
+        setMetric("metricGateway",details.sni_gateway || details.gateway);
+        setMetric("metricLatency",details.latency_ms === null || typeof details.latency_ms === "undefined" ? null : details.latency_ms + " ms");
+        setMetric("metricDownload",details.download);
+        setMetric("metricUpload",details.upload);
+        setMetric("metricDuration",details.duration);
+        setMetric("metricSession",details.session_id);
+        setText("telemetrySource",details.source ? "SOURCE\n" + String(details.source).toUpperCase() : "SOURCE\nUNAVAILABLE");
+      }
 
-  if (typeof window.AndroidVPN !== "undefined") {
-    try {
-      setStatus("Disconnecting...", "Stopping VPN tunnel");
-      AndroidVPN.disconnect();
-      return;
-    } catch (e) {}
-  }
+      function apiUrl(path){
+        return API_BASE + (path.charAt(0) === "/" ? path : "/" + path);
+      }
 
-  window.location.href = "aetheravpn://disconnect";
-};
-</script>
+      function apiRequest(path,options){
+        options = options || {};
+        if(!API_BASE){
+          return Promise.reject({code:"API_UNAVAILABLE"});
+        }
+        var headers = options.headers || {};
+        headers.Accept = "application/json";
+        if(options.body){headers["Content-Type"] = "application/json";}
+        var request = {
+          method:options.method || "GET",
+          headers:headers,
+          credentials:"include",
+          cache:"no-store"
+        };
+        if(options.body){request.body = options.body;}
+        return fetch(apiUrl(path),request).then(function(response){
+          return response.text().then(function(raw){
+            var payload = null;
+            try{payload = raw ? JSON.parse(raw) : null;}catch(e){payload = null;}
+            if(!response.ok){
+              var error = {code:"HTTP_" + response.status,status:response.status,payload:payload};
+              throw error;
+            }
+            return payload || {};
+          });
+        });
+      }
 
+      function refreshHealth(){
+        if(!API_BASE){
+          setApiUi(false);
+          return Promise.resolve();
+        }
+        setText("apiState","CHECKING...");
+        setText("workerState","CHECKING...");
+        return apiRequest("/api/health").then(function(payload){
+          setApiUi(true);
+          if(payload && payload.gateways){state.gateways = Array.isArray(payload.gateways) ? payload.gateways : [];}
+          if(payload && payload.servers){state.servers = Array.isArray(payload.servers) ? payload.servers : [];}
+          if(payload && payload.profiles){state.profiles = Array.isArray(payload.profiles) && payload.profiles.length ? payload.profiles : PROFILE_CATALOG.slice(0);}
+          renderServers();
+          renderProfiles();
+          renderGateways();
+          renderGatewaySelect();
+          setText("workerState",payload && payload.health_worker ? displayValue(payload.health_worker).toUpperCase() : "UNAVAILABLE");
+          return payload;
+        }).catch(function(){
+          setApiUi(false);
+          setText("workerState","UNAVAILABLE");
+        });
+      }
+
+      function refreshAll(){
+        refreshHealth().then(function(){
+          if(!API_BASE){return;}
+          return Promise.all([
+            apiRequest("/api/servers").then(function(payload){state.servers = Array.isArray(payload) ? payload : (payload.servers || []);}).catch(function(){}),
+            apiRequest("/api/profiles").then(function(payload){state.profiles = Array.isArray(payload) ? payload : (payload.profiles || PROFILE_CATALOG.slice(0));}).catch(function(){}),
+            apiRequest("/api/gateways").then(function(payload){state.gateways = Array.isArray(payload) ? payload : (payload.gateways || []);}).catch(function(){})
+          ]).then(function(){
+            renderServers();
+            renderProfiles();
+            renderGateways();
+            renderGatewaySelect();
+          });
+        });
+      }
+
+      function renderServers(){
+        var select = byId("serverSelect");
+        if(!select){return;}
+        while(select.options.length > 1){select.remove(1);}
+        state.servers.forEach(function(server){
+          if(!server || !server.id){return;}
+          var option = document.createElement("option");
+          option.value = String(server.id);
+          option.textContent = displayValue(server.name || server.id);
+          select.appendChild(option);
+        });
+        select.value = state.selectedServer;
+        if(select.value !== state.selectedServer){select.value = "auto"; state.selectedServer = "auto";}
+        setText("serverHelp",state.servers.length ? "Authorized server telemetry loaded from backend." : "Authorized server data: UNAVAILABLE");
+
+        var list = byId("serverList");
+        if(!list){return;}
+        list.textContent = "";
+        setText("serverInventoryState",state.servers.length ? "LOADED" : "UNAVAILABLE");
+        if(!state.servers.length){
+          var empty = document.createElement("div");
+          empty.className = "empty-state";
+          var icon = document.createElement("div");
+          icon.className = "empty-icon";
+          icon.textContent = "⌁";
+          var title = document.createElement("h3");
+          title.textContent = "No authorized server telemetry";
+          var copy = document.createElement("p");
+          copy.textContent = API_BASE ? "The secure API returned no server records." : "No server identity, health or load value is being invented by this static page.";
+          empty.appendChild(icon);
+          empty.appendChild(title);
+          empty.appendChild(copy);
+          list.appendChild(empty);
+          return;
+        }
+        state.servers.forEach(function(server){
+          var card = document.createElement("article");
+          card.className = "gateway-card";
+          var head = document.createElement("div");
+          head.className = "gateway-head";
+          var nameWrap = document.createElement("div");
+          var name = document.createElement("h3");
+          name.className = "gateway-name";
+          name.textContent = displayValue(server.name || server.id);
+          var region = document.createElement("div");
+          region.className = "gateway-host";
+          region.textContent = displayValue(server.region || server.location);
+          nameWrap.appendChild(name);
+          nameWrap.appendChild(region);
+          var status = document.createElement("span");
+          status.className = "status-pill " + (server.status === "ONLINE" ? "connected" : "");
+          status.textContent = displayValue(server.status).toUpperCase();
+          head.appendChild(nameWrap);
+          head.appendChild(status);
+          var grid = document.createElement("div");
+          grid.className = "gateway-grid";
+          addDataCell(grid,"Protocol",server.protocol);
+          addDataCell(grid,"Latency",typeof server.latency_ms === "number" ? server.latency_ms + " ms" : null);
+          addDataCell(grid,"Load",typeof server.load_percent === "number" ? server.load_percent + "%" : null);
+          addDataCell(grid,"Sessions",server.active_sessions);
+          addDataCell(grid,"Maintenance",server.maintenance_state);
+          addDataCell(grid,"Last check",server.last_check);
+          card.appendChild(head);
+          card.appendChild(grid);
+          list.appendChild(card);
+        });
+      }
+
+      function renderGatewaySelect(){
+        var select = byId("gatewaySelect");
+        var adminSelect = byId("adminGatewaySelect");
+        if(select){
+          while(select.options.length > 1){select.remove(1);}
+          state.gateways.forEach(function(gateway){
+            if(!gateway || !gateway.id){return;}
+            var option = document.createElement("option");
+            option.value = String(gateway.id);
+            option.textContent = displayValue(gateway.name || gateway.hostname || gateway.id);
+            select.appendChild(option);
+          });
+          select.value = state.selectedGateway;
+          if(select.value !== state.selectedGateway){select.value = "auto"; state.selectedGateway = "auto";}
+        }
+        if(adminSelect){
+          while(adminSelect.options.length){adminSelect.remove(0);}
+          if(!state.gateways.length){
+            var empty = document.createElement("option");
+            empty.value = "";
+            empty.textContent = "No authorized gateway loaded";
+            adminSelect.appendChild(empty);
+          }else{
+            state.gateways.forEach(function(gateway){
+              var option = document.createElement("option");
+              option.value = String(gateway.id || "");
+              option.textContent = displayValue(gateway.name || gateway.hostname || gateway.id);
+              adminSelect.appendChild(option);
+            });
+          }
+        }
+        setText("gatewayHelp",state.gateways.length ? "Gateway health is provided by authorized monitoring." : "Gateway telemetry: UNAVAILABLE");
+      }
+
+      function renderProfiles(){
+        var select = byId("profileSelect");
+        var catalog = byId("profileCatalog");
+        if(select){
+          while(select.options.length){select.remove(0);}
+          var placeholder = document.createElement("option");
+          placeholder.value = "";
+          placeholder.textContent = "Select a policy profile";
+          select.appendChild(placeholder);
+          state.profiles.forEach(function(profile){
+            if(!profile || !profile.id){return;}
+            var option = document.createElement("option");
+            option.value = String(profile.id);
+            option.textContent = displayValue(profile.name || profile.profile_name || profile.id);
+            select.appendChild(option);
+          });
+          select.value = state.selectedProfile;
+          if(select.value !== state.selectedProfile){select.value = "standard"; state.selectedProfile = "standard";}
+        }
+        if(!catalog){return;}
+        catalog.textContent = "";
+        state.profiles.forEach(function(profile){
+          if(!profile || !profile.id){return;}
+          var card = document.createElement("article");
+          card.className = "profile-card" + (String(profile.id) === state.selectedProfile ? " selected" : "");
+          var head = document.createElement("div");
+          head.className = "profile-head";
+          var title = document.createElement("h3");
+          title.className = "profile-name";
+          title.textContent = displayValue(profile.name || profile.profile_name || profile.id);
+          var tag = document.createElement("span");
+          tag.className = "tag";
+          tag.textContent = profile.transport ? String(profile.transport) : "POLICY";
+          head.appendChild(title);
+          head.appendChild(tag);
+          var summary = document.createElement("p");
+          summary.className = "profile-summary";
+          summary.textContent = displayValue(profile.summary || "Server-side profile policy; authorization status is unavailable.");
+          var status = document.createElement("div");
+          status.className = "profile-status";
+          status.textContent = profile.authorized === true ? "AUTHORIZED RESPONSE RECEIVED" : "VALIDATION: BACKEND REQUIRED";
+          var actions = document.createElement("div");
+          actions.className = "profile-actions";
+          var selectButton = document.createElement("button");
+          selectButton.type = "button";
+          selectButton.className = "small-btn accent";
+          selectButton.textContent = "SELECT PROFILE";
+          selectButton.setAttribute("data-profile-id",String(profile.id));
+          actions.appendChild(selectButton);
+          card.appendChild(head);
+          card.appendChild(summary);
+          card.appendChild(status);
+          card.appendChild(actions);
+          catalog.appendChild(card);
+        });
+        var selected = state.profiles.filter(function(profile){return profile && String(profile.id) === state.selectedProfile;})[0];
+        setText("profileHelp",selected && selected.authorized === true ? "Authorized profile returned by backend." : "Profile validation: BACKEND REQUIRED");
+      }
+
+      function renderGateways(){
+        var list = byId("gatewayList");
+        if(!list){return;}
+        list.textContent = "";
+        setText("gatewayInventoryState",state.gateways.length ? "LOADED" : "UNAVAILABLE");
+        if(!state.gateways.length){
+          var empty = document.createElement("div");
+          empty.className = "empty-state";
+          var icon = document.createElement("div");
+          icon.className = "empty-icon";
+          icon.textContent = "◈";
+          var title = document.createElement("h3");
+          title.textContent = "No authorized gateway telemetry";
+          var copy = document.createElement("p");
+          copy.textContent = API_BASE ? "The secure API returned no gateway records. Add an approved gateway from the protected Admin API, then run the real validation checks." : "This static control plane has no gateway API configured. No hostname, certificate, latency or ONLINE state is being invented.";
+          empty.appendChild(icon);
+          empty.appendChild(title);
+          empty.appendChild(copy);
+          list.appendChild(empty);
+          return;
+        }
+        state.gateways.forEach(function(gateway){
+          var card = document.createElement("article");
+          card.className = "gateway-card";
+          var head = document.createElement("div");
+          head.className = "gateway-head";
+          var nameWrap = document.createElement("div");
+          var name = document.createElement("h3");
+          name.className = "gateway-name";
+          name.textContent = displayValue(gateway.name || gateway.id);
+          var host = document.createElement("div");
+          host.className = "gateway-host";
+          host.textContent = displayValue(gateway.hostname || gateway.public_hostname);
+          nameWrap.appendChild(name);
+          nameWrap.appendChild(host);
+          var status = document.createElement("span");
+          status.className = "status-pill " + (gateway.status === "VALID" || gateway.health === "ONLINE" ? "connected" : "");
+          status.textContent = displayValue(gateway.status || gateway.health).toUpperCase();
+          head.appendChild(nameWrap);
+          head.appendChild(status);
+          var grid = document.createElement("div");
+          grid.className = "gateway-grid";
+          addDataCell(grid,"Region",gateway.region);
+          addDataCell(grid,"TLS",gateway.supported_tls_versions || gateway.tls_versions);
+          addDataCell(grid,"ALPN",gateway.alpn);
+          addDataCell(grid,"Latency",typeof gateway.latency_ms === "number" ? gateway.latency_ms + " ms" : null);
+          addDataCell(grid,"Certificate",gateway.certificate_status);
+          addDataCell(grid,"Expiry",gateway.certificate_expiry);
+          addDataCell(grid,"Load",typeof gateway.load_percent === "number" ? gateway.load_percent + "%" : null);
+          addDataCell(grid,"Last check",gateway.last_check);
+          var actions = document.createElement("div");
+          actions.className = "gateway-actions";
+          var test = document.createElement("button");
+          test.type = "button";
+          test.className = "small-btn accent";
+          test.textContent = "TEST FULL CONNECTION";
+          test.setAttribute("data-gateway-id",String(gateway.id || ""));
+          test.addEventListener("click",function(){runGatewayTest("full",gateway.id);});
+          actions.appendChild(test);
+          card.appendChild(head);
+          card.appendChild(grid);
+          card.appendChild(actions);
+          list.appendChild(card);
+        });
+      }
+
+      function addDataCell(parent,label,value){
+        var cell = document.createElement("div");
+        cell.className = "data-cell";
+        var caption = document.createElement("span");
+        caption.textContent = label;
+        var data = document.createElement("b");
+        data.textContent = displayValue(value);
+        cell.appendChild(caption);
+        cell.appendChild(data);
+        parent.appendChild(cell);
+      }
+
+      function selectedProfileObject(){
+        return state.profiles.filter(function(profile){return profile && String(profile.id) === state.selectedProfile;})[0] || null;
+      }
+
+      function connectVPN(){
+        if(state.connection === "CONNECTED" || state.connection === "ESTABLISHING_TUNNEL" || state.connection === "REQUESTING_AUTHORIZATION"){
+          return;
+        }
+        if(appAvailable() && !API_BASE){
+          setText("companionNote","Companion endpoint is available. The app will request Android VPN permission or profile selection, then report the real tunnel state.");
+          try{
+            window.AndroidVPN.connect();
+            return;
+          }catch(e){
+            setConnectionState("CONNECTION_FAILED","Unable to contact the Android VPN companion.");
+            return;
+          }
+        }
+        if(!API_BASE){
+          openCompanionLink("connect");
+          return;
+        }
+        setConnectionState("REQUESTING_AUTHORIZATION");
+        apiRequest("/api/session/authorize",{
+          method:"POST",
+          body:JSON.stringify({
+            profile_id:state.selectedProfile,
+            server_id:state.selectedServer,
+            transport:state.selectedTransport,
+            gateway_id:state.selectedGateway
+          })
+        }).then(function(session){
+          if(!session || !session.session_id || !session.expires_at){
+            throw {code:"INVALID_SESSION_RESPONSE"};
+          }
+          state.session = {
+            session_id:session.session_id,
+            expires_at:session.expires_at,
+            connection_token:session.connection_token
+          };
+          if(appAvailable() && typeof window.AndroidVPN.authorizeSession === "function"){
+            setConnectionState("ESTABLISHING_TUNNEL");
+            window.AndroidVPN.authorizeSession(JSON.stringify({
+              session_id:session.session_id,
+              expires_at:session.expires_at,
+              connection_token:session.connection_token
+            }));
+          }else{
+            setConnectionState("CONNECTION_FAILED","Companion client update required for short-lived session authorization.");
+          }
+        }).catch(function(error){
+          state.session = null;
+          if(error && error.code === "API_UNAVAILABLE"){
+            setConnectionState("DISCONNECTED","Secure API is unavailable; no connection authorization was issued.");
+          }else{
+            setConnectionState("AUTH_FAILED","Connection authorization was not granted.");
+          }
+        });
+      }
+
+      function disconnectVPN(){
+        if(appAvailable()){
+          try{
+            window.AndroidVPN.disconnect();
+            return;
+          }catch(e){
+            setConnectionState("CONNECTION_FAILED","Unable to contact the Android VPN companion.");
+            return;
+          }
+        }
+        if(API_BASE && state.session){
+          apiRequest("/api/session/" + encodeURIComponent(state.session.session_id) + "/disconnect",{method:"POST"}).catch(function(){});
+          state.session = null;
+        }
+        openCompanionLink("disconnect");
+      }
+
+      function openCompanionLink(action){
+        var start = Date.now();
+        try{window.location.href = "aetheravpn://" + action;}catch(e){}
+        window.setTimeout(function(){
+          if(Date.now() - start < 2500 && !appAvailable() && !appShellAvailable()){
+            showBrowserNotice();
+          }
+        },1400);
+      }
+
+      function importNativeProfile(){
+        if(appAvailable()){
+          try{window.AndroidVPN.importConfig();return;}catch(e){}
+        }
+        openCompanionLink("import");
+      }
+
+      function onVpnState(status){
+        status = String(status || "DISCONNECTED");
+        if(status === "CONNECTED"){
+          setConnectionState("CONNECTED");
+          setConnectionDetails({source:"COMPANION CONFIRMED"});
+        }else if(status === "CONNECTING"){
+          setConnectionState("ESTABLISHING_TUNNEL","The Android companion is establishing the encrypted tunnel.");
+        }else if(status === "DISCONNECTING"){
+          setConnectionState("DISCONNECTED","The companion is stopping the VPN tunnel.");
+        }else if(status === "DISCONNECTED"){
+          setConnectionState("DISCONNECTED");
+          setConnectionDetails({});
+        }else if(status === "SELECT_CONFIG"){
+          setConnectionState("DISCONNECTED","Select an authorized WireGuard profile in the companion app before connecting.");
+        }else if(status === "CONFIG_IMPORTED"){
+          setConnectionState("DISCONNECTED","Authorized profile imported. Connect again when ready.");
+        }else if(status === "CONFIG_REQUIRED"){
+          setConnectionState("DISCONNECTED","An authorized VPN profile is required before the tunnel can start.");
+        }else if(status === "CONFIG_IMPORT_CANCELLED"){
+          setConnectionState("DISCONNECTED","Profile selection was cancelled; no tunnel was started.");
+        }else if(status === "VPN_PERMISSION_DENIED"){
+          setConnectionState("AUTH_FAILED","Android VPN permission was denied.");
+        }else if(status.indexOf("ERROR:") === 0){
+          setConnectionState("CONNECTION_FAILED",status.substring(6).trim() || "The companion reported a connection error.");
+        }
+      }
+
+      window.onVpnState = onVpnState;
+      window.aetheraVpnStatus = onVpnState;
+
+      window.aetheraNativeReady = function(){
+        state.native = true;
+        showBrowserNotice();
+        setText("companionState","AVAILABLE");
+        setText("settingsCompanionState","AVAILABLE");
+        if(window.AndroidVPN && typeof window.AndroidVPN.getState === "function"){
+          try{
+            var nativeState = window.AndroidVPN.getState();
+            if(nativeState === "UP"){onVpnState("CONNECTED");}else{onVpnState("DISCONNECTED");}
+          }catch(e){}
+        }
+      };
+
+      function importSafeProfile(){
+        var input = byId("profileFileInput");
+        if(input){input.value = ""; input.click();}
+      }
+
+      function containsSecretKey(value){
+        if(!value || typeof value !== "object"){return false;}
+        var keys = Object.keys(value);
+        for(var i=0;i<keys.length;i++){
+          if(/private.?key|preshared|password|secret|credential|token|api.?key/i.test(keys[i])){return true;}
+          if(typeof value[keys[i]] === "object" && containsSecretKey(value[keys[i]])){return true;}
+        }
+        return false;
+      }
+
+      function importProfileFile(file){
+        var reader = new FileReader();
+        reader.onload = function(){
+          var payload;
+          try{payload = JSON.parse(String(reader.result || ""));}catch(e){showToast("Invalid JSON profile.");return;}
+          if(containsSecretKey(payload)){showToast("Rejected: profile contains a secret field.");return;}
+          if(!payload || String(payload.version || "") !== "1" || !payload.profile_name){
+            showToast("Rejected: version 1 and profile_name are required.");
+            return;
+          }
+          var allowed = ["AUTO","WIREGUARD","OPENVPN","TLS_GATEWAY","HTTPS_GATEWAY"];
+          var transport = String(payload.transport || "AUTO").toUpperCase();
+          if(allowed.indexOf(transport) < 0){showToast("Rejected: unsupported transport.");return;}
+          var imported = {
+            id:"imported-" + Date.now(),
+            name:String(payload.profile_name).substring(0,80),
+            profile_name:String(payload.profile_name).substring(0,80),
+            transport:transport,
+            server_id:payload.server_id ? String(payload.server_id) : "",
+            gateway_id:payload.gateway_id ? String(payload.gateway_id) : "",
+            dns_policy:payload.dns_policy ? String(payload.dns_policy) : "",
+            mtu:payload.mtu ? Number(payload.mtu) : null,
+            routing_policy:payload.routing_policy ? String(payload.routing_policy) : "",
+            authorized:false,
+            summary:"Imported policy metadata awaiting server-side validation."
+          };
+          state.profiles = state.profiles.filter(function(profile){return profile.id !== "custom";});
+          state.profiles.push(imported);
+          state.selectedProfile = imported.id;
+          safeStorageSet(STORAGE_PROFILE,imported.id);
+          renderProfiles();
+          setView("profiles");
+          showToast("Safe profile metadata imported. Backend validation is still required.");
+        };
+        reader.readAsText(file);
+      }
+
+      function exportSafeProfile(){
+        var profile = selectedProfileObject() || PROFILE_CATALOG[0];
+        var payload = {
+          version:"1",
+          profile_name:profile.name || profile.profile_name || profile.id,
+          transport:profile.transport || "AUTO",
+          server_id:state.selectedServer === "auto" ? "" : state.selectedServer,
+          gateway_id:state.selectedGateway === "auto" ? "" : state.selectedGateway,
+          dns_policy:"ADMINISTRATOR_CONFIGURED",
+          mtu:null,
+          routing_policy:"FULL_TUNNEL"
+        };
+        var blob = new Blob([JSON.stringify(payload,null,2)],{type:"application/json"});
+        var url = URL.createObjectURL(blob);
+        var anchor = document.createElement("a");
+        anchor.href = url;
+        anchor.download = "aethera-" + String(payload.profile_name).toLowerCase().replace(/[^a-z0-9]+/g,"-") + ".vpnprofile.json";
+        document.body.appendChild(anchor);
+        anchor.click();
+        document.body.removeChild(anchor);
+        window.setTimeout(function(){URL.revokeObjectURL(url);},1000);
+        showToast("Safe profile exported without credentials or permanent secrets.");
+      }
+
+      function refreshGateways(){
+        if(!API_BASE){
+          renderGateways();
+          return;
+        }
+        setText("gatewayInventoryState","CHECKING...");
+        apiRequest("/api/gateways").then(function(payload){
+          state.gateways = Array.isArray(payload) ? payload : (payload.gateways || []);
+          renderGateways();
+          renderGatewaySelect();
+        }).catch(function(){
+          setText("gatewayInventoryState","UNAVAILABLE");
+          renderGateways();
+        });
+      }
+
+      function submitGateway(event){
+        event.preventDefault();
+        var payload = {
+          name:byId("gatewayName").value.trim(),
+          region:byId("gatewayRegion").value.trim(),
+          hostname:byId("gatewayHostname").value.trim(),
+          expected_sni:byId("gatewaySni").value.trim(),
+          tls_port:Number(byId("gatewayPort").value),
+          minimum_tls:byId("gatewayTls").value,
+          alpn:byId("gatewayAlpn").value.trim(),
+          health_check_interval:Number(byId("gatewayInterval").value),
+          allowed_profiles:byId("gatewayProfiles").value.split(",").map(function(value){return value.trim();}).filter(Boolean)
+        };
+        if(!API_BASE){
+          showToast("UNAVAILABLE — protected admin API is not configured.");
+          return;
+        }
+        apiRequest("/api/admin/gateways",{method:"POST",body:JSON.stringify(payload)}).then(function(){
+          showToast("Gateway submitted for server-side validation.");
+          byId("gatewayForm").reset();
+          refreshGateways();
+        }).catch(function(){
+          showToast("Gateway was not saved. Check admin authorization and API availability.");
+        });
+      }
+
+      function runGatewayTest(kind,id){
+        id = id || (byId("adminGatewaySelect") && byId("adminGatewaySelect").value);
+        var status = byId("testStatus");
+        if(!id){if(status){status.textContent = "UNAVAILABLE — select an authorized gateway record first.";};return;}
+        if(!API_BASE){if(status){status.textContent = "UNAVAILABLE — protected admin API is not configured.";};return;}
+        if(status){status.textContent = "CHECKING... real " + kind.toUpperCase() + " test requested.";};
+        apiRequest("/api/admin/gateways/" + encodeURIComponent(id) + "/tests/" + encodeURIComponent(kind),{method:"POST"}).then(function(payload){
+          if(status){status.textContent = JSON.stringify(payload);};
+          refreshGateways();
+        }).catch(function(){
+          if(status){status.textContent = "UNAVAILABLE — gateway test endpoint did not return a verified result.";};
+        });
+      }
+
+      function refreshAudit(){
+        var list = byId("auditList");
+        if(!list){return;}
+        list.textContent = "";
+        if(!API_BASE){
+          renderEmptyAudit("Audit API unavailable. No local browser event log is presented as an authoritative audit trail.");
+          return;
+        }
+        setText("auditState","CHECKING...");
+        apiRequest("/api/admin/audit?limit=50").then(function(payload){
+          var events = Array.isArray(payload) ? payload : (payload.events || []);
+          setText("auditState",events.length ? "LOADED" : "EMPTY");
+          if(!events.length){renderEmptyAudit("No audit events were returned by the backend.");return;}
+          events.forEach(function(event){
+            var row = document.createElement("div");
+            row.className = "audit-row";
+            var head = document.createElement("div");
+            head.className = "audit-head";
+            var action = document.createElement("div");
+            action.className = "audit-action";
+            action.textContent = displayValue(event.action);
+            var result = document.createElement("div");
+            result.className = "audit-result";
+            result.textContent = displayValue(event.result);
+            head.appendChild(action);
+            head.appendChild(result);
+            var meta = document.createElement("div");
+            meta.className = "audit-meta";
+            meta.textContent = displayValue(event.timestamp) + " · " + displayValue(event.resource) + " · " + displayValue(event.session_id || event.user_id);
+            row.appendChild(head);
+            row.appendChild(meta);
+            list.appendChild(row);
+          });
+        }).catch(function(){
+          setText("auditState","UNAVAILABLE");
+          renderEmptyAudit("The backend did not return a verified audit response.");
+        });
+      }
+
+      function renderEmptyAudit(message){
+        var list = byId("auditList");
+        if(!list){return;}
+        var empty = document.createElement("div");
+        empty.className = "empty-state";
+        var icon = document.createElement("div");
+        icon.className = "empty-icon";
+        icon.textContent = "≡";
+        var title = document.createElement("h3");
+        title.textContent = "No local audit claims";
+        var copy = document.createElement("p");
+        copy.textContent = message;
+        empty.appendChild(icon);
+        empty.appendChild(title);
+        empty.appendChild(copy);
+        list.appendChild(empty);
+      }
+
+      function initialize(){
+        var savedTheme = safeStorageGet(STORAGE_THEME);
+        setTheme(savedTheme || "night");
+        state.selectedServer = safeStorageGet(STORAGE_SERVER) || "auto";
+        state.selectedProfile = safeStorageGet(STORAGE_PROFILE) || "standard";
+        setApiUi(false);
+        renderServers();
+        renderProfiles();
+        renderGatewaySelect();
+        renderGateways();
+        refreshAudit();
+        setConnectionState("DISCONNECTED");
+        setConnectionDetails({});
+        showBrowserNotice();
+        refreshAll();
+
+        document.querySelectorAll("[data-view-target]").forEach(function(button){
+          button.addEventListener("click",function(){setView(button.getAttribute("data-view-target"));});
+        });
+
+        document.querySelectorAll("[data-theme-choice]").forEach(function(button){
+          button.addEventListener("click",function(){setTheme(button.getAttribute("data-theme-choice"));});
+        });
+
+        byId("themeCycleBtn").addEventListener("click",cycleTheme);
+        byId("settingsBtn").addEventListener("click",function(){toggleSettings();});
+        byId("closeSettingsBtn").addEventListener("click",function(){toggleSettings(false);});
+        byId("connectBtn").addEventListener("click",connectVPN);
+        byId("disconnectBtn").addEventListener("click",disconnectVPN);
+        byId("importNativeBtn").addEventListener("click",importNativeProfile);
+        byId("refreshBtn").addEventListener("click",refreshAll);
+        byId("refreshGatewaysBtn").addEventListener("click",refreshGateways);
+        byId("refreshAuditBtn").addEventListener("click",refreshAudit);
+        byId("importProfileJsonBtn").addEventListener("click",importSafeProfile);
+        byId("exportProfileJsonBtn").addEventListener("click",exportSafeProfile);
+        byId("profileFileInput").addEventListener("change",function(event){
+          if(event.target.files && event.target.files[0]){importProfileFile(event.target.files[0]);}
+        });
+        byId("gatewayForm").addEventListener("submit",submitGateway);
+        byId("serverSelect").addEventListener("change",function(event){
+          state.selectedServer = event.target.value || "auto";
+          safeStorageSet(STORAGE_SERVER,state.selectedServer);
+        });
+        byId("profileSelect").addEventListener("change",function(event){
+          state.selectedProfile = event.target.value || "standard";
+          safeStorageSet(STORAGE_PROFILE,state.selectedProfile);
+          renderProfiles();
+        });
+        byId("transportSelect").addEventListener("change",function(event){
+          state.selectedTransport = event.target.value || "AUTO";
+        });
+        byId("gatewaySelect").addEventListener("change",function(event){
+          state.selectedGateway = event.target.value || "auto";
+          renderGatewaySelect();
+        });
+        document.addEventListener("click",function(event){
+          var profileButton = event.target.closest ? event.target.closest("[data-profile-id]") : null;
+          if(profileButton){
+            state.selectedProfile = profileButton.getAttribute("data-profile-id");
+            safeStorageSet(STORAGE_PROFILE,state.selectedProfile);
+            renderProfiles();
+            setView("dashboard");
+            showToast("Profile selected. Backend validation is required before authorization.");
+          }
+          var testButton = event.target.closest ? event.target.closest("[data-gateway-test]") : null;
+          if(testButton){runGatewayTest(testButton.getAttribute("data-gateway-test"));}
+        });
+
+        window.setInterval(function(){
+          if(API_BASE){refreshHealth();}
+        },15000);
+
+        window.setTimeout(function(){
+          showBrowserNotice();
+          if(appAvailable() && typeof window.aetheraNativeReady === "function"){window.aetheraNativeReady();}
+        },450);
+      }
+
+      initialize();
+    }());
+  </script>
 </body>
 </html>
