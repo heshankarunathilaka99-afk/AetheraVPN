@@ -1402,9 +1402,9 @@
               </div>
 
               <div class="field">
-                <label for="profileSelect">Profile</label>
+                <label for="profileSelect">Authorized VPN plan / profile</label>
                 <select id="profileSelect"></select>
-                <div class="field-help" id="profileHelp">Profile validation: BACKEND REQUIRED</div>
+                <div class="field-help" id="profileHelp">Authorized profile mapping: BACKEND OR APP REQUIRED</div>
               </div>
 
               <div class="field">
@@ -2149,7 +2149,7 @@
           while(select.options.length){select.remove(0);}
           var placeholder = document.createElement("option");
           placeholder.value = "";
-          placeholder.textContent = "Select a policy profile";
+          placeholder.textContent = "Select authorized VPN plan / profile";
           select.appendChild(placeholder);
           state.profiles.forEach(function(profile){
             if(!profile || !profile.id){return;}
@@ -2197,8 +2197,7 @@
           card.appendChild(actions);
           catalog.appendChild(card);
         });
-        var selected = state.profiles.filter(function(profile){return profile && String(profile.id) === state.selectedProfile;})[0];
-        setText("profileHelp",selected && selected.authorized === true ? "Authorized profile returned by backend." : "Profile validation: BACKEND REQUIRED");
+        refreshSelectedProfileHelp();
       }
 
       function renderGateways(){
@@ -2283,14 +2282,68 @@
         return state.profiles.filter(function(profile){return profile && String(profile.id) === state.selectedProfile;})[0] || null;
       }
 
+      function selectedNativeConfigAvailable(){
+        if(!appAvailable() || !window.AndroidVPN){return false;}
+        try{
+          if(typeof window.AndroidVPN.hasConfigFor === "function"){
+            return !!window.AndroidVPN.hasConfigFor(
+              state.selectedServer || "auto",
+              state.selectedProfile || "standard"
+            );
+          }
+          if(typeof window.AndroidVPN.hasConfig === "function"){
+            return !!window.AndroidVPN.hasConfig();
+          }
+        }catch(e){}
+        return false;
+      }
+
+      function refreshSelectedProfileHelp(){
+        var selected = selectedProfileObject();
+        if(selected && selected.authorized === true){
+          setText("profileHelp","Authorized profile returned by backend.");
+          return;
+        }
+        if(selectedNativeConfigAvailable()){
+          setText("profileHelp","Imported / ready in the Aethera companion app.");
+          return;
+        }
+        setText("profileHelp","Authorized profile mapping: BACKEND OR APP REQUIRED");
+      }
+
       function connectVPN(){
         if(state.connection === "CONNECTED" || state.connection === "ESTABLISHING_TUNNEL" || state.connection === "REQUESTING_AUTHORIZATION"){
           return;
         }
+
+        var selected = selectedProfileObject();
+        var requestedTransport = state.selectedTransport || "AUTO";
+        if(requestedTransport === "AUTO"
+            && selected
+            && selected.transport
+            && selected.transport !== "AUTO"){
+          requestedTransport = String(selected.transport).toUpperCase();
+        }
+
+        if(appAvailable()
+            && !API_BASE
+            && requestedTransport !== "AUTO"
+            && requestedTransport !== "WIREGUARD"){
+          setConnectionState("POLICY_DENIED","This local companion supports authorized WireGuard profiles only. Configure the protected backend and matching companion transport before using OpenVPN or TLS Gateway.");
+          return;
+        }
+
         if(appAvailable() && !API_BASE){
-          setText("companionNote","Companion endpoint is available. The app will request Android VPN permission or profile selection, then report the real tunnel state.");
+          setText("companionNote","Companion endpoint is available. The selected authorized VPN plan/profile will use its locally imported WireGuard configuration, then report the real tunnel state.");
           try{
-            window.AndroidVPN.connect();
+            if(typeof window.AndroidVPN.connectProfile === "function"){
+              window.AndroidVPN.connectProfile(
+                state.selectedServer || "auto",
+                state.selectedProfile || "standard"
+              );
+            }else{
+              window.AndroidVPN.connect();
+            }
             return;
           }catch(e){
             setConnectionState("CONNECTION_FAILED","Unable to contact the Android VPN companion.");
@@ -2358,7 +2411,14 @@
 
       function openCompanionLink(action){
         var start = Date.now();
-        try{window.location.href = "aetheravpn://" + action;}catch(e){}
+        var query = "";
+        if(action === "connect" || action === "import"){
+          query = "?server_id="
+            + encodeURIComponent(state.selectedServer || "auto")
+            + "&profile_id="
+            + encodeURIComponent(state.selectedProfile || "standard");
+        }
+        try{window.location.href = "aetheravpn://" + action + query;}catch(e){}
         window.setTimeout(function(){
           if(Date.now() - start < 2500 && !appAvailable() && !appShellAvailable()){
             showBrowserNotice();
@@ -2368,7 +2428,17 @@
 
       function importNativeProfile(){
         if(appAvailable()){
-          try{window.AndroidVPN.importConfig();return;}catch(e){}
+          try{
+            if(typeof window.AndroidVPN.importConfigFor === "function"){
+              window.AndroidVPN.importConfigFor(
+                state.selectedServer || "auto",
+                state.selectedProfile || "standard"
+              );
+            }else{
+              window.AndroidVPN.importConfig();
+            }
+            return;
+          }catch(e){}
         }
         openCompanionLink("import");
       }
@@ -2388,7 +2458,8 @@
         }else if(status === "SELECT_CONFIG"){
           setConnectionState("DISCONNECTED","Select an authorized WireGuard profile in the companion app before connecting.");
         }else if(status === "CONFIG_IMPORTED"){
-          setConnectionState("DISCONNECTED","Authorized profile imported. Connect again when ready.");
+          refreshSelectedProfileHelp();
+          setConnectionState("DISCONNECTED","Authorized VPN plan/profile imported. Connect again when ready.");
         }else if(status === "CONFIG_REQUIRED"){
           setConnectionState("DISCONNECTED","An authorized VPN profile is required before the tunnel can start.");
         }else if(status === "CONFIG_IMPORT_CANCELLED"){
@@ -2408,6 +2479,7 @@
         showBrowserNotice();
         setText("companionState","AVAILABLE");
         setText("settingsCompanionState","AVAILABLE");
+        refreshSelectedProfileHelp();
         if(window.AndroidVPN && typeof window.AndroidVPN.getState === "function"){
           try{
             var nativeState = window.AndroidVPN.getState();
@@ -2647,11 +2719,13 @@
         byId("serverSelect").addEventListener("change",function(event){
           state.selectedServer = event.target.value || "auto";
           safeStorageSet(STORAGE_SERVER,state.selectedServer);
+          refreshSelectedProfileHelp();
         });
         byId("profileSelect").addEventListener("change",function(event){
           state.selectedProfile = event.target.value || "standard";
           safeStorageSet(STORAGE_PROFILE,state.selectedProfile);
           renderProfiles();
+          refreshSelectedProfileHelp();
         });
         byId("transportSelect").addEventListener("change",function(event){
           state.selectedTransport = event.target.value || "AUTO";

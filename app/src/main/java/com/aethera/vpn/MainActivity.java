@@ -22,6 +22,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
+import java.util.Locale;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -53,6 +54,11 @@ public class MainActivity extends Activity {
             new AetheraTunnel();
 
     private File configFile;
+    private File profileDirectory;
+
+    private volatile File activeConfigFile;
+    private volatile String pendingServerId = "";
+    private volatile String pendingProfileId = "";
 
     private volatile boolean pendingConnectAfterImport = false;
     private volatile boolean pendingConnectAfterPermission = false;
@@ -64,6 +70,16 @@ public class MainActivity extends Activity {
 
         configFile =
                 new File(getFilesDir(), "aethera-wireguard.conf");
+
+        profileDirectory =
+                new File(getFilesDir(), "aethera-authorized-profiles");
+
+        if (!profileDirectory.exists()) {
+            // Best-effort creation; import will report a clear error if it fails.
+            profileDirectory.mkdirs();
+        }
+
+        activeConfigFile = configFile;
 
         backend =
                 new GoBackend(getApplicationContext());
@@ -321,6 +337,10 @@ public class MainActivity extends Activity {
                     return;
                 }
 
+                activeConfigFile = configFile;
+                pendingServerId = "";
+                pendingProfileId = "";
+
                 if (!configFile.exists()) {
                     pendingConnectAfterImport = true;
                     sendStatus("SELECT_CONFIG");
@@ -329,6 +349,51 @@ public class MainActivity extends Activity {
                 }
 
                 requestPermissionAndConnect();
+            });
+        }
+
+        /**
+         * Connect using a locally imported, operator-authorized profile binding.
+         * The browser supplies identifiers only; it never supplies a tunnel
+         * configuration, private key or arbitrary gateway value.
+         */
+        @JavascriptInterface
+        public void connectProfile(String serverId, String profileId) {
+            final String safeServer = safeIdentifier(serverId, "auto");
+            final String safeProfile = safeIdentifier(profileId, "standard");
+
+            runOnUiThread(() -> {
+                if (!trustedPage) {
+                    return;
+                }
+
+                pendingServerId = safeServer;
+                pendingProfileId = safeProfile;
+
+                File selected = profileConfigFile(
+                        safeServer,
+                        safeProfile
+                );
+
+                if (selected.exists()) {
+                    activeConfigFile = selected;
+                    requestPermissionAndConnect();
+                    return;
+                }
+
+                // Preserve the original single-profile flow for the default
+                // selection while encouraging explicit bindings for others.
+                if ("auto".equals(safeServer)
+                        && "standard".equals(safeProfile)
+                        && configFile.exists()) {
+                    activeConfigFile = configFile;
+                    requestPermissionAndConnect();
+                    return;
+                }
+
+                pendingConnectAfterImport = true;
+                sendStatus("SELECT_CONFIG");
+                openConfigPicker();
             });
         }
 
@@ -347,6 +412,24 @@ public class MainActivity extends Activity {
                 }
 
                 pendingConnectAfterImport = false;
+                pendingServerId = "";
+                pendingProfileId = "";
+                openConfigPicker();
+            });
+        }
+
+        @JavascriptInterface
+        public void importConfigFor(String serverId, String profileId) {
+            pendingServerId = safeIdentifier(serverId, "auto");
+            pendingProfileId = safeIdentifier(profileId, "standard");
+
+            runOnUiThread(() -> {
+                if (!trustedPage) {
+                    return;
+                }
+
+                pendingConnectAfterImport = false;
+                sendStatus("SELECT_CONFIG");
                 openConfigPicker();
             });
         }
@@ -354,6 +437,21 @@ public class MainActivity extends Activity {
         @JavascriptInterface
         public boolean hasConfig() {
             return trustedPage && configFile.exists();
+        }
+
+        @JavascriptInterface
+        public boolean hasConfigFor(String serverId, String profileId) {
+            if (!trustedPage) {
+                return false;
+            }
+
+            String safeServer = safeIdentifier(serverId, "auto");
+            String safeProfile = safeIdentifier(profileId, "standard");
+
+            return profileConfigFile(safeServer, safeProfile).exists()
+                    || ("auto".equals(safeServer)
+                    && "standard".equals(safeProfile)
+                    && configFile.exists());
         }
 
         @JavascriptInterface
@@ -370,6 +468,60 @@ public class MainActivity extends Activity {
                 return "DOWN";
             }
         }
+    }
+
+    private String safeIdentifier(String value, String fallback) {
+        if (value == null || value.trim().isEmpty()) {
+            return fallback;
+        }
+
+        String normalized = value
+                .trim()
+                .toLowerCase(Locale.US)
+                .replaceAll("[^a-z0-9._-]", "_");
+
+        if (normalized.isEmpty()) {
+            return fallback;
+        }
+
+        return normalized.length() > 64
+                ? normalized.substring(0, 64)
+                : normalized;
+    }
+
+    private File profileConfigFile(String serverId, String profileId) {
+        if (profileDirectory == null) {
+            profileDirectory =
+                    new File(getFilesDir(), "aethera-authorized-profiles");
+        }
+
+        return new File(
+                profileDirectory,
+                safeIdentifier(serverId, "auto")
+                        + "__"
+                        + safeIdentifier(profileId, "standard")
+                        + ".conf"
+        );
+    }
+
+    private File importTargetFile() {
+        if (pendingServerId == null
+                || pendingServerId.isEmpty()
+                || pendingProfileId == null
+                || pendingProfileId.isEmpty()) {
+            return configFile;
+        }
+
+        if (!profileDirectory.exists()
+                && !profileDirectory.mkdirs()
+                && !profileDirectory.exists()) {
+            return configFile;
+        }
+
+        return profileConfigFile(
+                pendingServerId,
+                pendingProfileId
+        );
     }
 
     private void openConfigPicker() {
@@ -424,7 +576,11 @@ public class MainActivity extends Activity {
 
             try {
 
-                if (!configFile.exists()) {
+                File selectedConfig = activeConfigFile == null
+                        ? configFile
+                        : activeConfigFile;
+
+                if (!selectedConfig.exists()) {
                     sendStatus("CONFIG_REQUIRED");
                     return;
                 }
@@ -433,7 +589,7 @@ public class MainActivity extends Activity {
 
                 try (
                         InputStream input =
-                                new FileInputStream(configFile)
+                                new FileInputStream(selectedConfig)
                 ) {
                     config = Config.parse(input);
                 }
@@ -549,17 +705,19 @@ public class MainActivity extends Activity {
                     }
                 }
 
+                File target = importTargetFile();
+
                 if (
-                        configFile.exists()
+                        target.exists()
                                 &&
-                        !configFile.delete()
+                        !target.delete()
                 ) {
                     throw new Exception(
                             "Unable to replace profile"
                     );
                 }
 
-                if (!temp.renameTo(configFile)) {
+                if (!temp.renameTo(target)) {
 
                     try (
                             FileInputStream input =
@@ -567,7 +725,7 @@ public class MainActivity extends Activity {
 
                             FileOutputStream output =
                                     new FileOutputStream(
-                                            configFile,
+                                            target,
                                             false
                                     )
                     ) {
@@ -591,6 +749,8 @@ public class MainActivity extends Activity {
 
                     temp.delete();
                 }
+
+                activeConfigFile = target;
 
                 sendStatus("CONFIG_IMPORTED");
 
@@ -645,6 +805,8 @@ public class MainActivity extends Activity {
             } else {
 
                 pendingConnectAfterImport = false;
+                pendingServerId = "";
+                pendingProfileId = "";
 
                 sendStatus(
                         "CONFIG_IMPORT_CANCELLED"
@@ -775,8 +937,18 @@ public class MainActivity extends Activity {
         }
 
         String host = uri.getHost();
+        String serverId = uri.getQueryParameter("server_id");
+        String profileId = uri.getQueryParameter("profile_id");
 
         if ("connect".equalsIgnoreCase(host)) {
+
+            if (serverId != null || profileId != null) {
+                new AndroidVPNBridge().connectProfile(
+                        serverId,
+                        profileId
+                );
+                return;
+            }
 
             runOnUiThread(() -> {
 
@@ -799,6 +971,14 @@ public class MainActivity extends Activity {
             disconnectTunnel();
 
         } else if ("import".equalsIgnoreCase(host)) {
+
+            if (serverId != null || profileId != null) {
+                new AndroidVPNBridge().importConfigFor(
+                        serverId,
+                        profileId
+                );
+                return;
+            }
 
             runOnUiThread(() -> {
                 sendStatus("SELECT_CONFIG");
