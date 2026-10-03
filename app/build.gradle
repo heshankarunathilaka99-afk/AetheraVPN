@@ -16,11 +16,11 @@ android {
         ndk {
             abiFilters 'armeabi-v7a'
         }
-        applicationId "com.aethera.vpn3"
+        applicationId "com.aethera.vpn.redmi9c"
         minSdk 24
         targetSdk 35
-        versionCode 11
-        versionName "2.1-bridge-settings"
+        versionCode 12
+        versionName "2.1-redmi9c"
     }
     packaging {
         jniLibs {

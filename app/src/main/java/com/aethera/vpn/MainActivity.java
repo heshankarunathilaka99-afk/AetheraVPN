@@ -863,7 +863,7 @@ public class MainActivity extends Activity {
                 .replace("\r", " ");
 
         m = m.replaceAll(
-                "(?i)(privatekey|presharedkey|password|secret)\\s*[:=]\\s*[^\\s,;]+",
+                "(?i)(private[ _-]?key|preshared[ _-]?key|password|secret)\\s*[:=]\\s*[^\\s,;]+",
                 "$1=<redacted>"
         );
 
